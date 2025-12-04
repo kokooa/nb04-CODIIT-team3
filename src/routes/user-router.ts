@@ -1,9 +1,18 @@
 import { Router } from 'express';
-import { signup, updateUser } from '../controllers/user-controller.js';
+import multer from 'multer';
+import {
+  getUser,
+  signup,
+  unregister,
+  updateUser,
+} from '../controllers/user-controller.js';
 import { authMiddleware } from '../common/auth-middleware.js';
+
 const router = Router();
+const upload = multer();
 
 router.post('/', signup);
-router.patch('/me', authMiddleware, updateUser);
-
+router.get('/me', authMiddleware, getUser);
+router.patch('/me', authMiddleware, upload.none(), updateUser);
+router.delete('/delete', authMiddleware, unregister);
 export default router;

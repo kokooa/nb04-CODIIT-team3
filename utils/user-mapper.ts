@@ -1,3 +1,6 @@
+import type { User, UserPoint } from '@prisma/client';
+import type { UserResponseDto } from '../types/index.js';
+
 const GRADE_INFO = {
   BRONZE: { rate: 1, minAmount: 0 },
   SILVER: { rate: 3, minAmount: 50000 },
@@ -37,4 +40,29 @@ export const mapUserToClientResponse = (dbUser: any) => {
   };
 
   return userPayload;
+};
+
+export const toUserResponseDto = (
+  user: User & { userPoints: UserPoint | null },
+): UserResponseDto => {
+  const gradeKey = (user.userPoints?.grade || 'BRONZE') as Grade;
+  const gradeData = GRADE_INFO[gradeKey] || GRADE_INFO.BRONZE;
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    password: user.password, // 필요시 제거
+    type: user.type,
+    points: user.userPoints?.points || 0,
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
+    grade: {
+      id: `grade_${gradeKey.toLowerCase()}`,
+      name: gradeKey,
+      rate: gradeData.rate,
+      minAmount: gradeData.minAmount,
+    },
+    image: user.image || '',
+  };
 };

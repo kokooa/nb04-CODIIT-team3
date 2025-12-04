@@ -1,4 +1,9 @@
-import { signupService, updateUserService } from '../services/user-service.js';
+import {
+  getUserService,
+  signupService,
+  unregisterService,
+  updateUserService,
+} from '../services/user-service.js';
 import type { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../../utils/error-handler.js';
 
@@ -9,15 +14,13 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
 
     const user = await signupService(type, name, email, password);
 
-    res.status(201).json({
-      data: user,
-    });
+    res.status(201).json(user);
   } catch (err) {
     next(err);
   }
 }
 
-// 개인정보 수정
+// 내 정보 수정
 export async function updateUser(
   req: Request,
   res: Response,
@@ -29,20 +32,62 @@ export async function updateUser(
     }
     const userId = req.user.id;
 
-    const { currentPassword, newName, newImage, newPassword } = req.body;
+    const { currentPassword, name, image, password } = req.body;
+
+    if (password && currentPassword) {
+      throw new HttpError('현재 비밀번호를 입력해주세요', 400);
+    }
+
+    if (!name && !image && !password) {
+      throw new HttpError('수정할 정보를 입력해주세요', 400);
+    }
 
     const profile = await updateUserService(
       userId,
       currentPassword,
-      newName,
-      newImage,
-      newPassword,
+      name,
+      image,
+      password,
     );
 
-    res.status(200).json({
-      message: '정보 수정 성공',
-      data: profile,
-    });
+    res.status(200).json(profile);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// 내 정보 조회
+export async function getUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError('유저 정보 없음', 400);
+    }
+
+    const data = await getUserService(userId);
+
+    res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// 회원 탈퇴
+export async function unregister(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    if (!req.user || !req.user.id) {
+      throw new HttpError('잘못된 요청입니다', 400);
+    }
+    const userId = req.user?.id;
+
+    const data = await unregisterService(userId);
+
+    res.status(200).json(data);
   } catch (err) {
     next(err);
   }

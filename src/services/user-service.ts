@@ -2,6 +2,8 @@ import prisma from '../../prisma/prisma.js';
 import bcrypt from 'bcrypt';
 import type { User, UserRole } from '@prisma/client';
 import { HttpError } from '../../utils/error-handler.js';
+import { toUserResponseDto } from '../../utils/user-mapper.js';
+import type { UserResponseDto } from '../../types/index.js';
 
 // 회원가입
 export async function signupService(
@@ -52,13 +54,13 @@ export async function signupService(
   return user;
 }
 
-// 개인정보 수정
+// 내 정보 수정
 export async function updateUserService(
   userId: number,
   currentPassword: string,
-  newName?: string,
-  newImage?: string,
-  newPassword?: string,
+  name?: string,
+  image?: string,
+  password?: string,
 ) {
   if (!currentPassword || currentPassword.trim() === '') {
     throw new HttpError('현재 비밀번호를 입력해야 합니다.', 400);
@@ -83,15 +85,15 @@ export async function updateUserService(
   // 1. 업데이트할 데이터 객체 준비
   const updateData: Partial<User> = {};
 
-  if (newName) {
-    updateData.name = newName;
+  if (name) {
+    updateData.name = name;
   }
-  if (newImage) {
-    updateData.image = newImage;
+  if (image) {
+    updateData.image = image;
   }
 
-  if (newPassword) {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
     updateData.password = hashedPassword;
   }
 
@@ -106,4 +108,38 @@ export async function updateUserService(
     },
   });
   return update;
+}
+
+// 내 정보 조회
+export async function getUserService(userId: number): Promise<UserResponseDto> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { userPoints: true },
+  });
+
+  if (!user) {
+    throw new HttpError('유저를 찾을 수 없습니다.', 404);
+  }
+  const responseDto = toUserResponseDto(user);
+
+  return responseDto;
+}
+
+// 회원 탈퇴
+export async function unregisterService(userId: number) {
+  if (!userId) {
+    throw new HttpError('인증이 필요합니다', 401);
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new HttpError('유저를 찾을 수 없습니다.', 404);
+  }
+
+  await prisma.user.delete({
+    where: { id: userId },
+  });
 }
