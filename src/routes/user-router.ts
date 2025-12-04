@@ -6,7 +6,7 @@ import {
   unregister,
   updateUser,
 } from '../controllers/user-controller.js';
-import { authMiddleware } from '../common/auth-middleware.js';
+import { authMiddleware } from '../common/middlewares.js';
 
 const router = Router();
 const upload = multer();
