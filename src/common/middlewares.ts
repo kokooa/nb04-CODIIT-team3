@@ -75,7 +75,7 @@ export async function refreshMiddleware(
     const jwtRefreshSecret = process.env.REFRESH_SECRET;
 
     if (!jwtRefreshSecret) {
-      console.error('FEFRESH_SECRET이 설정되지 않았습니다.');
+      console.error('REFRESH_SECRET이 설정되지 않았습니다.');
       res.status(500).json({
         message: '서버 설정 오류',
       });
