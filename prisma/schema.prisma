@@ -21,7 +21,7 @@ enum UserRole {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
+  id              String       @id @default(cuid())
   email           String    @unique // 로그인 ID (이메일)
   password        String    // 해시된 비밀번호
   nickname        String    @unique
@@ -45,8 +45,8 @@ model User {
 // -----------------------------------------------------------
 
 model Store {
-  id             Int       @id @default(autoincrement())
-  sellerId       Int       @unique // 판매자 ID (1:1 관계)
+  id             String       @id @default(cuid())
+  sellerId       String       @unique // 판매자 ID (1:1 관계)
   name           String
   address        String
   phoneNumber    String
@@ -74,8 +74,8 @@ enum ProductCategory {
 }
 
 model Product {
-  id             Int               @id @default(autoincrement())
-  storeId        Int
+  id             String               @id @default(cuid())
+  storeId        String
   name           String
   mainImageUrl   String
   price          Int               // 판매가
@@ -100,8 +100,8 @@ model Product {
 }
 
 model ProductStock {
-  id        Int     @id @default(autoincrement())
-  productId Int
+  id        String     @id @default(cuid())
+  productId String
   size      String  // 예: S, M, L, 260 등
   quantity  Int     @default(0)
 
@@ -116,9 +116,9 @@ model ProductStock {
 // -----------------------------------------------------------
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
+  id        String      @id @default(cuid())
+  userId    String
+  productId String
   quantity  Int
   size      String   // 선택된 사이즈
   createdAt DateTime @default(now())
@@ -140,8 +140,8 @@ enum OrderStatus {
 }
 
 model Order {
-  id                 Int         @id @default(autoincrement())
-  userId             Int
+  id                 String         @id @default(cuid())
+  userId             String
   orderNumber        String      @unique
   totalAmount        Int         // 총 결제 금액
   usedPoints         Int         @default(0) // 사용된 포인트
@@ -158,9 +158,9 @@ model Order {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
+  id        String     @id @default(cuid())
+  orderId   String
+  productId String
   quantity  Int
   price     Int     // 주문 당시 상품 가격 (할인 적용 가격)
   size      String  // 주문된 사이즈
@@ -176,9 +176,9 @@ model OrderItem {
 // -----------------------------------------------------------
 
 model Inquiry {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
+  id        String      @id @default(cuid())
+  userId    String
+  productId String
   title     String
   content   String
   isSecret  Boolean  @default(false) // 비밀글 여부
@@ -193,9 +193,9 @@ model Inquiry {
 }
 
 model InquiryAnswer {
-  id          Int      @id @default(autoincrement())
-  inquiryId   Int      @unique
-  sellerId    Int      // 답변한 판매자 ID (필요시)
+  id          String      @id @default(cuid())
+  inquiryId   String      @unique
+  sellerId    String      // 답변한 판매자 ID (필요시)
   content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -205,10 +205,10 @@ model InquiryAnswer {
 }
 
 model Review {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  productId   Int
-  orderItemId Int      @unique // 구매한 상품에 대해서만 작성 가능하도록 OrderItem과 1:1 연결
+  id          String      @id @default(cuid())
+  userId      String
+  productId   String
+  orderItemId String      @unique // 구매한 상품에 대해서만 작성 가능하도록 OrderItem과 1:1 연결
   rating      Int      // 별점 (1~5)
   content     String
   createdAt   DateTime @default(now())
@@ -233,8 +233,8 @@ enum UserGrade {
 }
 
 model UserPoint {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @unique
+  id              String       @id @default(cuid())
+  userId          String       @unique
   currentPoints   Int       @default(0) // 현재 보유 포인트
   accumulatedAmount Int     @default(0) // 누적 구매 금액 (등급 산정 기준)
   grade           UserGrade @default(BRONZE)
@@ -249,9 +249,9 @@ model UserPoint {
 // -----------------------------------------------------------
 
 model FavoriteStore {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  storeId   Int
+  id        String      @id @default(cuid())
+  userId    String
+  storeId   String
   createdAt DateTime @default(now())
 
   @@unique([userId, storeId]) // 사용자별 스토어는 한 번만 등록 가능
