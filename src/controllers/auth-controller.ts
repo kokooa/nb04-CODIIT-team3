@@ -19,10 +19,16 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     const userPayload = mapUserToClientResponse(dbUser);
 
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'prodcution',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(201).json({
       user: userPayload,
       accessToken,
-      refreshToken,
     });
   } catch (err) {
     next(err);
@@ -32,7 +38,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 // Refresh Token으로 Access Token 재발급
 export async function reload(req: Request, res: Response, next: NextFunction) {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       throw new HttpError('잘못된 요청입니다.', 400);
