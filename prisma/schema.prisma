@@ -177,12 +177,12 @@ model OrderItem {
 
 model Inquiry {
   id        String      @id @default(cuid())
-  userId    String
-  productId String
   title     String
-  content   String
   isSecret  Boolean  @default(false) // 비밀글 여부
-  hasAnswer Boolean  @default(false) // 답변 상태
+  status    String   @default("WaitingAnswer") // 답변 상태: WaitingAnswer, CompletedAnswer
+  productId String
+  userId    String
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
