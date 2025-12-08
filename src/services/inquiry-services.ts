@@ -1,0 +1,36 @@
+import type {
+  GetInquiriesParamsDto,
+  InquiryItemDto,
+  InquiryListResponseDto,
+} from '../dtos/inquiry.dto.js';
+import * as inquiryRepository from '../repositories/inquiry-repositories.js';
+
+export const getInquiries = async (
+  params: GetInquiriesParamsDto,
+): Promise<InquiryListResponseDto> => {
+  // const { page, pageSize, status, userId } = params;
+
+  // 사용자 역할 받아오기
+  const userRole = await inquiryRepository.getUserRole(params.userId);
+
+  // params에 userRole 추가
+  params.userRole = userRole;
+  /* params = {
+    ...params,
+    userRole,
+  }; */
+
+  // 문의 목록 받아오기
+  const inquiryItems: InquiryItemDto[] =
+    await inquiryRepository.fetchInquiries(params);
+
+  const totalCount = await inquiryRepository.countTotalInquiries(
+    params.userId,
+    params.userRole,
+  );
+
+  return {
+    list: inquiryItems,
+    totalCount,
+  };
+};
