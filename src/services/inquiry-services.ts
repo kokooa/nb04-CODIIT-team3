@@ -5,6 +5,11 @@ import type {
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
+/**
+ * 내 문의 조회 (판매자, 구매자 공용)
+ * @param params
+ * @returns
+ */
 export const getInquiries = async (
   params: GetInquiriesParamsDto,
 ): Promise<InquiryListResponseDto> => {
