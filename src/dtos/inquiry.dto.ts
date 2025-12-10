@@ -1,3 +1,6 @@
+/* ------------------------------------------------------- */
+// DTOs for Inquiry
+
 export interface InquiryListResponseDto {
   list: InquiryItemDto[];
   totalCount: number;
@@ -46,3 +49,33 @@ export interface GetInquiriesParamsDto {
   userId: string;
   userRole?: 'BUYER' | 'SELLER';
 }
+
+/* ------------------------------------------------------- */
+
+export interface InquiryDetailResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  isSecret: boolean;
+  createdAt: string;
+  updatedAt: string;
+  user: InquiryUserDto;
+  reply?: InquiryReplyDto;
+}
+
+interface InquiryReplyDto {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  user: InquiryUserDto;
+}
+
+export interface GetInquiryDetailParamsDto {
+  inquiryId: string;
+}
+
+/* ------------------------------------------------------- */

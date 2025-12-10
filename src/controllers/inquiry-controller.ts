@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import type {
   GetInquiriesParamsDto,
   InquiryListResponseDto,
+  GetInquiryDetailParamsDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
@@ -56,8 +57,38 @@ export const getInquiries = async (
   }
 };
 
-export const getInquiryDetail = (req: Request, res: Response) => {
-  // 문의 상세 조회
+/**
+ * 문의 상세 조회
+ * getInquiries query parameters
+ * @param req
+ * @param res
+ */
+export const getInquiryDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { inquiryId } = req.params;
+
+    // 파라미터 유효성 검증
+    if (!inquiryId || inquiryId.trim() === '') {
+      return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+    }
+
+    // DTO 생성
+    const params: GetInquiryDetailParamsDto = {
+      inquiryId,
+    };
+
+    // 문의 상세 조회
+    const result = await inquiryService.getInquiryDetail(params);
+
+    // 응답 반환
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateInquiry = (req: Request, res: Response) => {
