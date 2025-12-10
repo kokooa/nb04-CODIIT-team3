@@ -9,9 +9,12 @@ export interface CreateProductDto {
   content?: string;
   image?: string;
   discountRate?: number;
-  discountStartTime?: string;
-  discountEndTime?: string;
-  categoryName: string;
+  discountStartTime?: string | Date;
+  discountEndTime?: string | Date;
+
+  categoryName: string;   
+  storeId: number;        
+
   stocks: StockDto[];
 }
 
@@ -21,10 +24,12 @@ export interface UpdateProductDto {
   content?: string;
   image?: string;
   discountRate?: number;
-  discountStartTime?: string;
-  discountEndTime?: string;
+  discountStartTime?: string | Date;
+  discountEndTime?: string | Date;
+
   categoryName?: string;
   isSoldOut?: boolean;
+
   stocks?: StockDto[];
 }
 
