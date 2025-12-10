@@ -2,6 +2,7 @@ import type {
   GetInquiriesParamsDto,
   InquiryItemDto,
   InquiryListResponseDto,
+  GetInquiryDetailParamsDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -38,4 +39,8 @@ export const getInquiries = async (
     list: inquiryItems,
     totalCount,
   };
+};
+
+export const getInquiryDetail = async (params: GetInquiryDetailParamsDto) => {
+  // 문의 상세 조회 로직 구현 예정
 };
