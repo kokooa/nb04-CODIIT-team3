@@ -52,6 +52,17 @@ export class StoreService {
   }
 
   /**
+   * ID를 통해 스토어 정보를 조회합니다.
+   * @param storeId 조회할 스토어의 ID
+   * @returns 스토어 객체 또는 null
+   */
+  async getStoreById(storeId: number) {
+    return prisma.store.findUnique({
+      where: { id: storeId },
+    });
+  }
+
+  /**
    * 스토어 정보를 수정합니다.
    * @param storeId 수정할 스토어의 ID
    * @param data 업데이트할 스토어 데이터

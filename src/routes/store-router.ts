@@ -3,34 +3,56 @@ import { Router } from 'express';
 import { StoreController } from '../controllers/store-controller';
 import { authenticate, authorize, checkExistingStore, isStoreOwner } from '../common/middlewares';
 import { UserRole } from '@prisma/client';
+import multer from 'multer';
+import path from 'path';
 
 const storeRouter = Router();
 const storeController = new StoreController();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // 1. 스토어 등록 (판매자만 가능, 판매자당 1개)
 storeRouter.post(
   '/',
   authenticate,
   authorize([UserRole.SELLER]),
-  checkExistingStore, // 판매자가 이미 스토어를 가지고 있는지 확인
+  upload.single('storeImageUrl'),
+  checkExistingStore,
   storeController.createStore
 );
 
 // 2. 판매자 본인 스토어 조회 (판매자만 가능)
 storeRouter.get(
-  '/my-store',
+  '/detail/my', // Frontend's expected endpoint
   authenticate,
   authorize([UserRole.SELLER]),
   storeController.getMyStore
 );
 
 // 3. 스토어 수정 (스토어 소유주 판매자만 가능)
-storeRouter.put(
+storeRouter.patch(
   '/:storeId',
   authenticate,
   authorize([UserRole.SELLER]),
-  isStoreOwner, // 요청된 스토어의 소유주인지 확인
+  isStoreOwner,
+  upload.single('storeImageUrl'),
   storeController.updateStore
+);
+
+// 2.5. 스토어 상세 조회 (모든 사용자 가능)
+storeRouter.get(
+  '/:storeId',
+  storeController.getStoreDetail // 아직 구현되지 않음
 );
 
 // 4. 특정 스토어를 관심 스토어로 등록 (인증된 사용자라면 누구든 가능)

@@ -1,7 +1,16 @@
 // src/controllers/store-controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { StoreService } from '../services/store-service'; // Assuming relative path
-import { UserRole } from '@prisma/client'; // For type checking, not directly used in logic here
+import { StoreService } from '../services/store-service';
+import { UserRole } from '@prisma/client';
+
+// Multer에서 오는 file 속성을 포함하도록 Request 인터페이스 확장
+declare global {
+  namespace Express {
+    interface Request {
+      file?: Express.Multer.File;
+    }
+  }
+}
 
 const storeService = new StoreService();
 
@@ -13,11 +22,11 @@ export class StoreController {
   async createStore(req: Request, res: Response, next: NextFunction) {
     try {
       // authenticate 미들웨어에 의해 req.user가 설정됨
-      const sellerId = req.user!.id; // !를 사용하여 user가 존재함을 단언
+      const sellerId = req.user!.id;
 
-      const { name, address, phoneNumber, storeImageUrl, description } = req.body;
+      const { name, address, phoneNumber, description } = req.body;
+      const storeImageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-      // 입력값 검증 (간단한 예시, 실제로는 더 상세한 유효성 검사 필요)
       if (!name || !address || !phoneNumber) {
         return res.status(400).json({ message: '스토어 이름, 주소, 전화번호는 필수 항목입니다.' });
       }
@@ -57,15 +66,45 @@ export class StoreController {
   }
 
   /**
+   * 특정 스토어의 상세 정보를 조회합니다. (모든 사용자 가능)
+   * GET /api/stores/:storeId
+   */
+  async getStoreDetail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const storeId = parseInt(req.params.storeId as string);
+
+      if (isNaN(storeId)) {
+        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+      }
+
+      const store = await storeService.getStoreById(storeId);
+
+      if (!store) {
+        return res.status(404).json({ message: '스토어를 찾을 수 없습니다.' });
+      }
+
+      res.status(200).json({ store });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * 스토어 정보를 수정합니다. (스토어 소유주 판매자만 가능)
    * PUT /api/stores/:storeId
    */
   async updateStore(req: Request, res: Response, next: NextFunction) {
     try {
       const storeId = parseInt(req.params.storeId as string);
-      const { name, address, phoneNumber, storeImageUrl, description } = req.body;
+      const { name, address, phoneNumber, description } = req.body;
+      let storeImageUrl: string | undefined;
 
-      // 입력값 검증 (간단한 예시, 실제로는 더 상세한 유효성 검사 필요)
+      if (req.file) {
+        storeImageUrl = `/uploads/${req.file.filename}`;
+      } else if (req.body.storeImageUrl !== undefined) {
+        storeImageUrl = req.body.storeImageUrl;
+      }
+
       if (!name && !address && !phoneNumber && !storeImageUrl && !description) {
         return res.status(400).json({ message: '수정할 스토어 정보가 없습니다.' });
       }
