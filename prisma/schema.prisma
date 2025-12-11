@@ -189,10 +189,10 @@ model Inquiry {
   // 관계 설정
   user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
-  answer    InquiryAnswer? // 답변 (1:1 관계)
+  reply    InquiryReply? // 답변 (1:1 관계)
 }
 
-model InquiryAnswer {
+model InquiryReply {
   id          String      @id @default(cuid())
   inquiryId   String      @unique
   sellerId    String      // 답변한 판매자 ID (필요시)
