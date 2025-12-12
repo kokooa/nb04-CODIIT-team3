@@ -42,7 +42,7 @@ export const InquiryStatus = {
 export type InquiryStatus = (typeof InquiryStatus)[keyof typeof InquiryStatus];
 
 // getInquiries 함수의 매개변수 DTO
-export interface GetInquiriesParamsDto {
+export interface FetchInquiriesParamsDto {
   page: number;
   pageSize: number;
   status?: InquiryStatus;
@@ -74,7 +74,7 @@ interface InquiryReplyDto {
   user: InquiryUserDto;
 }
 
-export interface GetInquiryDetailParamsDto {
+export interface FetchInquiryDetailParamsDto {
   inquiryId: string;
 }
 

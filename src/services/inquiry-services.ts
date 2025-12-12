@@ -1,8 +1,8 @@
 import type {
-  GetInquiriesParamsDto,
+  FetchInquiriesParamsDto,
   InquiryItemDto,
   InquiryListResponseDto,
-  GetInquiryDetailParamsDto,
+  FetchInquiryDetailParamsDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -12,7 +12,7 @@ import * as inquiryRepository from '../repositories/inquiry-repositories.js';
  * @returns
  */
 export const getInquiries = async (
-  params: GetInquiriesParamsDto,
+  params: FetchInquiriesParamsDto,
 ): Promise<InquiryListResponseDto> => {
   // const { page, pageSize, status, userId } = params;
 
@@ -41,6 +41,6 @@ export const getInquiries = async (
   };
 };
 
-export const getInquiryDetail = async (params: GetInquiryDetailParamsDto) => {
+export const getInquiryDetail = async (params: FetchInquiryDetailParamsDto) => {
   // 문의 상세 조회 로직 구현 예정
 };
