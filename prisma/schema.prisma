@@ -38,6 +38,7 @@ model User {
   orders          Order[]   // 주문/구매
   userPoints      UserPoint? // 포인트 및 등급 정보
   favoriteStores  FavoriteStore[] // 관심 스토어
+  inquiryReplies    InquiryReply[] // 답변 (1:1 관계)
 }
 
 // -----------------------------------------------------------
@@ -189,19 +190,20 @@ model Inquiry {
   // 관계 설정
   user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
-  reply    InquiryReply? // 답변 (1:1 관계)
+  reply     InquiryReply?
 }
 
 model InquiryReply {
   id          String      @id @default(cuid())
   inquiryId   String      @unique
-  sellerId    String      // 답변한 판매자 ID (필요시)
+  sellerId    String      // 답변한 판매자 ID
   content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // 관계 설정
   inquiry     Inquiry  @relation(fields: [inquiryId], references: [id])
+  seller      User     @relation(fields: [sellerId], references: [id])
 }
 
 model Review {
