@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import type {
-  GetInquiriesParamsDto,
+  FetchInquiriesParamsDto,
   InquiryListResponseDto,
-  GetInquiryDetailParamsDto,
+  FetchInquiryDetailParamsDto,
+  InquiryDetailResponseDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
@@ -39,7 +40,7 @@ export const getInquiries = async (
     }
 
     // DTO 생성
-    const params: GetInquiriesParamsDto = {
+    const params: FetchInquiriesParamsDto = {
       page: parseInt(page || '1', 10) || 1,
       pageSize: parseInt(pageSize || '10', 10) || 10,
       userId,
@@ -77,7 +78,7 @@ export const getInquiryDetail = async (
     }
 
     // DTO 생성
-    const params: GetInquiryDetailParamsDto = {
+    const params: FetchInquiryDetailParamsDto = {
       inquiryId,
     };
 

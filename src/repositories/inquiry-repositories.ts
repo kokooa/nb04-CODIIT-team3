@@ -2,8 +2,9 @@ import type { $Enums } from '@prisma/client';
 import { HttpError } from '../common/httpError.js';
 import prisma from '../common/prisma.js';
 import type {
-  GetInquiriesParamsDto,
+  FetchInquiriesParamsDto,
   InquiryItemDto,
+  FetchInquiryDetailParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -34,7 +35,7 @@ export const getUserRole = async (userId: string): Promise<$Enums.UserRole> => {
  * @returns InquiryItemDto[]
  */
 export const fetchInquiries = async (
-  params: GetInquiriesParamsDto,
+  params: FetchInquiriesParamsDto,
 ): Promise<InquiryItemDto[]> => {
   const { page, pageSize, status, userId, userRole } = params;
 
