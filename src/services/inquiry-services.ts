@@ -4,6 +4,7 @@ import type {
   InquiryListResponseDto,
   FetchInquiryDetailParamsDto,
   InquiryDetailResponseDto,
+  InquiryStatus,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -47,12 +48,13 @@ export const getInquiryDetail = async (
 ): Promise<InquiryDetailResponseDto> => {
   const inquiryDetail = await inquiryRepository.fetchInquiryDetailById(params);
 
-  const { reply, ...rest } = inquiryDetail;
+  const { reply, status, ...rest } = inquiryDetail;
 
   if (reply) {
     const { seller, ...replyRest } = reply;
     return {
       ...rest,
+      status: status as InquiryStatus,
       reply: {
         ...replyRest,
         user: seller,
@@ -60,5 +62,5 @@ export const getInquiryDetail = async (
     };
   }
 
-  return rest;
+  return { ...rest, status: status as InquiryStatus };
 };
