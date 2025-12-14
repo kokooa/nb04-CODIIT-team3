@@ -3,6 +3,7 @@ import type {
   InquiryItemDto,
   InquiryListResponseDto,
   FetchInquiryDetailParamsDto,
+  InquiryDetailResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -41,6 +42,23 @@ export const getInquiries = async (
   };
 };
 
-export const getInquiryDetail = async (params: FetchInquiryDetailParamsDto) => {
-  // 문의 상세 조회 로직 구현 예정
+export const getInquiryDetail = async (
+  params: FetchInquiryDetailParamsDto,
+): Promise<InquiryDetailResponseDto> => {
+  const inquiryDetail = await inquiryRepository.fetchInquiryDetailById(params);
+
+  const { reply, ...rest } = inquiryDetail;
+
+  if (reply) {
+    const { seller, ...replyRest } = reply;
+    return {
+      ...rest,
+      reply: {
+        ...replyRest,
+        user: seller,
+      },
+    };
+  }
+
+  return rest;
 };
