@@ -13,7 +13,7 @@ export interface InquiryItemDto {
   status: InquiryStatus;
   product: InquiryProductDto;
   user: InquiryUserDto;
-  createdAt: string;
+  createdAt: Date;
   content: string;
 }
 
@@ -60,8 +60,8 @@ export interface InquiryDetailResponseDto {
   content: string;
   status: InquiryStatus;
   isSecret: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   user: InquiryUserDto;
   reply?: InquiryReplyDto;
 }
@@ -69,8 +69,8 @@ export interface InquiryDetailResponseDto {
 interface InquiryReplyDto {
   id: string;
   content: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   user: InquiryUserDto;
 }
 
