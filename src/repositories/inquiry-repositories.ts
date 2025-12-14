@@ -5,6 +5,7 @@ import type {
   FetchInquiriesParamsDto,
   InquiryItemDto,
   FetchInquiryDetailParamsDto,
+  InquiryStatus,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -46,12 +47,16 @@ export const fetchInquiries = async (
         {
           product: {
             store: {
-              id: userId,
+              sellerId: userId,
             },
           },
         };
 
-  prisma.inquiry.findMany({
+  if (status) {
+    whereClause.status = status;
+  }
+
+  const inquiries = await prisma.inquiry.findMany({
     where: whereClause,
     select: {
       id: true,
@@ -60,7 +65,6 @@ export const fetchInquiries = async (
       status: true,
       user: {
         select: {
-          id: true,
           name: true,
         },
       },
@@ -87,7 +91,10 @@ export const fetchInquiries = async (
     take: pageSize,
   });
 
-  return [];
+  return inquiries.map((inquiry) => ({
+    ...inquiry,
+    status: inquiry.status as InquiryStatus,
+  }));
 };
 
 /**
@@ -107,7 +114,7 @@ export const countTotalInquiries = async (
         {
           product: {
             store: {
-              id: userId,
+              sellerId: userId,
             },
           },
         };
@@ -117,4 +124,53 @@ export const countTotalInquiries = async (
   });
 
   return count;
+};
+
+/**
+ * inquiryId로 상세 문의 조회
+ * @param inquiryId string
+ */
+export const fetchInquiryDetailById = async (
+  params: FetchInquiryDetailParamsDto,
+) => {
+  const inquiry = await prisma.inquiry.findUnique({
+    where: {
+      id: params.inquiryId,
+    },
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      title: true,
+      content: true,
+      status: true,
+      isSecret: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      reply: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          seller: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!inquiry) {
+    throw new HttpError('문의가 존재하지 않습니다.', 404);
+  }
+
+  return inquiry;
 };

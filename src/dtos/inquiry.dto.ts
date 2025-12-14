@@ -9,7 +9,7 @@ export interface InquiryListResponseDto {
 export interface InquiryItemDto {
   id: string;
   title: string;
-  isSecret: string;
+  isSecret: boolean;
   status: InquiryStatus;
   product: InquiryProductDto;
   user: InquiryUserDto;

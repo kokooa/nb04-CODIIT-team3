@@ -83,7 +83,8 @@ export const getInquiryDetail = async (
     };
 
     // 문의 상세 조회
-    const result = await inquiryService.getInquiryDetail(params);
+    const result: InquiryDetailResponseDto =
+      await inquiryService.getInquiryDetail(params);
 
     // 응답 반환
     res.status(200).json(result);
