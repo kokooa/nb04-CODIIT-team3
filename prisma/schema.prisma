@@ -22,6 +22,7 @@ enum UserRole {
 
 model User {
   id              String       @id @default(cuid())
+  name            String
   email           String    @unique // 로그인 ID (이메일)
   password        String    // 해시된 비밀번호
   nickname        String    @unique
@@ -78,7 +79,7 @@ model Product {
   id             String               @id @default(cuid())
   storeId        String
   name           String
-  mainImageUrl   String
+  image          String
   price          Int               // 판매가
   category       ProductCategory
   detailInfo     String
