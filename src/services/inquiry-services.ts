@@ -43,6 +43,10 @@ export const getInquiries = async (
   };
 };
 
+/**
+ * getInquiryDetail
+ * @param params FetchInquiryDetailParamsDto
+ */
 export const getInquiryDetail = async (
   params: FetchInquiryDetailParamsDto,
 ): Promise<InquiryDetailResponseDto> => {
