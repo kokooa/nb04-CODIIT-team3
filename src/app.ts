@@ -3,6 +3,8 @@ import cors from 'cors';
 import userRouter from './routes/user-router.js';
 import authRouter from './routes/auth-router.js';
 import cookieParser from 'cookie-parser';
+import metadataRouter from './routes/metada-router.js';
+import notificationRouter from './routes/notification.router.js';
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(cookieParser());
 
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
+app.use('/metadata', metadataRouter);
+app.use('/notifications', notificationRouter);
 
 const PORT: number = Number(process.env.PORT) || 4000;
 

@@ -2,10 +2,11 @@ import type { User, UserPoint } from '@prisma/client';
 import type { UserResponseDto } from '../types/index.js';
 
 const GRADE_INFO = {
-  BRONZE: { rate: 1, minAmount: 0 },
-  SILVER: { rate: 3, minAmount: 50000 },
-  GOLD: { rate: 5, minAmount: 100000 },
-  PLATINUM: { rate: 7, minAmount: 500000 },
+  Green: { rate: 1, minAmount: 0 },
+  Orange: { rate: 3, minAmount: 100000 },
+  Red: { rate: 5, minAmount: 300000 },
+  Black: { rate: 7, minAmount: 500000 },
+  VIP: { rate: 10, minAmount: 1000000 },
 } as const;
 
 type Grade = keyof typeof GRADE_INFO;
@@ -15,10 +16,10 @@ export const mapUserToClientResponse = (dbUser: any) => {
   const userPointData =
     dbUser.userPoints && dbUser.userPoints.length > 0
       ? dbUser.userPoints[0]
-      : { points: 0, grade: 'BRONZE' }; // 기본값
+      : { points: 0, grade: 'Green' }; // 기본값
 
-  const gradeKey = (userPointData.grade || 'BRONZE') as Grade;
-  const gradeData = GRADE_INFO[gradeKey] || GRADE_INFO.BRONZE;
+  const gradeKey = (userPointData.grade || 'Green') as Grade;
+  const gradeData = GRADE_INFO[gradeKey] || GRADE_INFO.Green;
 
   const userGrade = {
     id: `grade_${gradeKey.toLowerCase()}`,
@@ -45,8 +46,8 @@ export const mapUserToClientResponse = (dbUser: any) => {
 export const toUserResponseDto = (
   user: User & { userPoints: UserPoint | null },
 ): UserResponseDto => {
-  const gradeKey = (user.userPoints?.grade || 'BRONZE') as Grade;
-  const gradeData = GRADE_INFO[gradeKey] || GRADE_INFO.BRONZE;
+  const gradeKey = (user.userPoints?.grade || 'Green') as Grade;
+  const gradeData = GRADE_INFO[gradeKey] || GRADE_INFO.Green;
 
   return {
     id: user.id,

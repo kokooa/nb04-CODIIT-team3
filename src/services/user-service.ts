@@ -4,6 +4,8 @@ import type { User, UserRole } from '@prisma/client';
 import { HttpError } from '../../utils/error-handler.js';
 import { toUserResponseDto } from '../../utils/user-mapper.js';
 import type { UserResponseDto } from '../../types/index.js';
+import { GRADE_POLICIES } from '../../types/index.js';
+import type { GradePolicy, UserPointResponse } from '../../types/index.js';
 
 // 회원가입
 export async function signupService(
@@ -37,7 +39,7 @@ export async function signupService(
       userPoints: {
         create: {
           points: 0,
-          grade: 'BRONZE',
+          grade: 'Green',
           accumulatedAmount: 0,
         },
       },
@@ -143,3 +145,77 @@ export async function unregisterService(userId: number) {
     where: { id: userId },
   });
 }
+
+// 내 포인트 조회
+
+export const getUserPointService = async (
+  userId: number,
+): Promise<UserPointResponse> => {
+  const userPointData = await prisma.userPoint.findUnique({
+    where: { userId: userId },
+  });
+
+  // 데이터가 없으면 신규 유저 취급 (기본값 설정)
+  const currentPoint = userPointData?.points ?? 0;
+  const currentAmount = userPointData?.accumulatedAmount ?? 0;
+  const dbGrade = userPointData?.grade ?? 'Green';
+
+  // -----------------------------------------------------------
+  // [변경 2] 등급 계산 로직 (기준: 누적 구매 금액 accumulatedAmount)
+  // -----------------------------------------------------------
+  let currentPolicyIndex = 0;
+
+  for (const [index, policy] of GRADE_POLICIES.entries()) {
+    if (currentAmount >= policy.minAmount) {
+      currentPolicyIndex = index;
+    } else {
+      break;
+    }
+  }
+
+  const currentPolicy = GRADE_POLICIES[currentPolicyIndex];
+
+  // 안전장치
+  if (!currentPolicy) {
+    throw new Error('매칭되는 등급 정책이 없습니다.');
+  }
+
+  const nextPolicy = GRADE_POLICIES[currentPolicyIndex + 1];
+
+  // -----------------------------------------------------------
+  // 다음 등급까지 남은 금액 및 달성률 계산
+  // -----------------------------------------------------------
+  let nextGradeName: string | null = null;
+  let remainingAmount = 0;
+  let progressPercent = 100;
+
+  if (nextPolicy) {
+    nextGradeName = nextPolicy.grade;
+
+    remainingAmount = Math.max(0, nextPolicy.minAmount - currentAmount);
+
+    const currentStageTotal = nextPolicy.minAmount - currentPolicy.minAmount;
+    const currentStageProgress = currentAmount - currentPolicy.minAmount;
+
+    if (currentStageTotal > 0) {
+      progressPercent = Math.floor(
+        (currentStageProgress / currentStageTotal) * 100,
+      );
+    } else {
+      progressPercent = 0;
+    }
+  }
+
+  // -----------------------------------------------------------
+  // 결과 반환
+  // -----------------------------------------------------------
+  return {
+    userSummary: {
+      currentPoint: currentPoint,
+      currentGrade: currentPolicy.grade,
+      nextGrade: nextGradeName,
+      remainingPoint: remainingAmount,
+      progressPercent: progressPercent,
+    },
+  };
+};

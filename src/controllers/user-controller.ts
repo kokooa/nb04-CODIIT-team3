@@ -6,6 +6,7 @@ import {
 } from '../services/user-service.js';
 import type { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../../utils/error-handler.js';
+import { getUserPointService } from '../services/user-service.js';
 
 // 회원가입
 export async function signup(req: Request, res: Response, next: NextFunction) {
@@ -92,3 +93,26 @@ export async function unregister(
     next(err);
   }
 }
+
+// 내 포인트 조회
+export const getMyPointInfo = async (req: Request, res: Response) => {
+  try {
+    // 1. 로그인 미들웨어(AuthGuard)를 통과했다면 req.user 등에 id가 있을 것입니다.
+    if (!req.user || !req.user.id) {
+      throw new HttpError('잘못된 요청입니다', 400);
+    }
+    const userId = req.user.id;
+
+    // 2. 서비스 로직 호출
+    const data = await getUserPointService(userId);
+
+    // 3. 성공 응답
+    return res.status(200).json({
+      status: 'success',
+      data: data,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
