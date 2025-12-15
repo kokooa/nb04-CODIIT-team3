@@ -15,11 +15,11 @@ router.patch('/inquiries/:inquiryId', inquiryController.updateInquiry); // 인�
 // 문읜 삭제
 router.delete('/inquiries/:inquiryId', inquiryController.deleteInquiry); // 인증 미들웨어 추가 예정
 
-// 문의 답변 상세 조회
-router.get(
+// 문의 답변 상세 조회 (사라짐)
+/* router.get(
   '/inquiries/:replyId/replies',
   inquiryController.getInquiryReplyDetail,
-);
+); */
 
 // 문의 답변 수정
 router.patch(
