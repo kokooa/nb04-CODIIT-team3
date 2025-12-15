@@ -202,6 +202,18 @@ export const updateInquiry = async (body: UpdateInquiryParamsDto) => {
       content,
       isSecret,
     },
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      title: true,
+      content: true,
+      status: true,
+      isSecret: true,
+      createdAt: true,
+      updatedAt: true,
+      reply: true,
+    },
   });
 
   return inquiryUpdated;
