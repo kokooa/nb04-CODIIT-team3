@@ -1,4 +1,4 @@
-import inquiryRoutes from './routes/inquiry-routes.js';
+import inquiryRoutes from './routes/inquiry-router.js';
 import express from 'express';
 import prisma from './common/prisma.js';
 
