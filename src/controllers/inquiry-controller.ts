@@ -61,8 +61,7 @@ export const getInquiries = async (
 /**
  * 문의 상세 조회
  * getInquiries query parameters
- * @param req
- * @param res
+ * @param inquiryId string
  */
 export const getInquiryDetail = async (
   req: Request,
@@ -93,8 +92,17 @@ export const getInquiryDetail = async (
   }
 };
 
-export const updateInquiry = (req: Request, res: Response) => {
-  // 문의 수정
+/**
+ * 문의 수정
+ * @param inquiryId string
+ * @body title, content, isSecret
+ */
+export const updateInquiry = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  
 };
 
 export const deleteInquiry = (req: Request, res: Response) => {
