@@ -6,7 +6,7 @@ import type {
   InquiryDetailResponseDto,
   InquiryStatus,
   InquiryUpdateDto,
-  InquiryUpdateResponseDto,
+  UpdateInquiryResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -74,11 +74,11 @@ export const getInquiryDetail = async (
 /**
  * updateInquiry
  * @param body InquiryUpdateDto
- * @returns inquiryUpdated InquiryUpdateResponseDto
+ * @returns inquiryUpdated UpdateInquiryResponseDto
  */
 export const updateInquiry = async (
   body: InquiryUpdateDto,
-): Promise<InquiryUpdateResponseDto> => {
+): Promise<UpdateInquiryResponseDto> => {
   // const { title, content, isSecret } = body;
 
   const inquiryUpdated = await inquiryRepository.updateInquiry(body);
