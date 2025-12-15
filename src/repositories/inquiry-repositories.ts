@@ -8,6 +8,7 @@ import type {
   InquiryStatus,
   UpdateInquiryParamsDto,
   DeleteInquiryParamsDto,
+  CreateInquiryReplyParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -216,4 +217,40 @@ export const deleteInquiry = async (
   });
 
   return deletedInquiry;
+};
+
+/**
+ * createInquiryReply
+ * @param body CreateInquiryReplyParamsDto
+ */
+export const createInquiryReply = async (
+  body: CreateInquiryReplyParamsDto,
+): Promise<any> => {
+  const createdInquiry = await prisma.inquiryReply.create({
+    data: {
+      inquiryId: body.inquiryId,
+      sellerId: body.userId,
+      content: body.content,
+    },
+  });
+
+  return createdInquiry;
+};
+
+/**
+ * fetchUserById
+ * @param userId string
+ */
+export const fetchUserById = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new HttpError('사용자가 존재하지 않습니다.', 404);
+  }
+
+  return user;
 };

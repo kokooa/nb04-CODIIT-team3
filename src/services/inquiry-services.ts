@@ -9,6 +9,8 @@ import type {
   UpdateInquiryResponseDto,
   DeleteInquiryParamsDto,
   DeleteInquiryResponseDto,
+  CreateInquiryReplyParamsDto,
+  CreateInquiryReplyResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -76,7 +78,7 @@ export const getInquiryDetail = async (
 /**
  * updateInquiry
  * @param body UpdateInquiryParamsDto
- * @returns inquiryUpdated UpdateInquiryResponseDto
+ * @returns UpdateInquiryResponseDto
  */
 export const updateInquiry = async (
   body: UpdateInquiryParamsDto,
@@ -92,6 +94,8 @@ export const updateInquiry = async (
 
 /**
  * deleteInquiry
+ * @param params DeleteInquiryParamsDto
+ * @returns DeleteInquiryResponseDto
  */
 export const deleteInquiry = async (
   params: DeleteInquiryParamsDto,
@@ -101,4 +105,33 @@ export const deleteInquiry = async (
   const { status, ...rest } = deletedInquiry;
 
   return { status: status as InquiryStatus, ...rest };
+};
+
+/**
+ * createInquiryReply
+ * @param body CreateInquiryReplyParamsDto
+ * @returns CreateInquiryReplyResponseDto
+ */
+export const createInquiryReply = async (
+  body: CreateInquiryReplyParamsDto,
+): Promise<CreateInquiryReplyResponseDto> => {
+  // const { inquiryId, content } = body;
+
+  // 문의 답변 생성
+  const createdInquiry = await inquiryRepository.createInquiryReply(body);
+  const { sellerId, ...restCreatedInquiry } = createdInquiry;
+
+  // 답변자 정보 받아오기
+  const userInfo = await inquiryRepository.fetchUserById(sellerId);
+
+  const result: CreateInquiryReplyResponseDto = {
+    ...restCreatedInquiry,
+    userId: sellerId,
+    user: {
+      id: userInfo.id,
+      name: userInfo.name,
+    },
+  };
+
+  return result;
 };
