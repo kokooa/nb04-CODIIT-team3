@@ -10,7 +10,7 @@ import type {
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
-import * as inquiryService from '../services/inquiry-services.js';
+import * as inquiryService from '../services/inquiry-service.js';
 import type { Create } from 'payload';
 
 /**
