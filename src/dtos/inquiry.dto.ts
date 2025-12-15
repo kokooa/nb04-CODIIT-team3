@@ -30,6 +30,7 @@ interface InquiryStoreDto {
 }
 
 interface InquiryUserDto {
+  id?: string;
   name: string;
 }
 
@@ -115,4 +116,22 @@ export interface DeleteInquiryResponseDto {
   isSecret: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/* ------------------------------------------------------- */
+
+export interface CreateInquiryReplyParamsDto {
+  inquiryId: string;
+  userId: string;
+  content: string;
+}
+
+export interface CreateInquiryReplyResponseDto {
+  id: string;
+  inquiryId: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: InquiryUserDto;
 }

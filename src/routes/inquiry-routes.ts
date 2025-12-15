@@ -21,13 +21,16 @@ router.delete('/inquiries/:inquiryId', inquiryController.deleteInquiry); // 인�
   inquiryController.getInquiryReplyDetail,
 ); */
 
+// 문의 답변
+router.post(
+  'inquiries/:inquiryId/replies',
+  inquiryController.createInquiryReply,
+); // 인증 미들웨어 추가 예정
+
 // 문의 답변 수정
 router.patch(
   'inquiries/:replyId/replies',
   inquiryController.updateInquiryReply,
 ); // 인증 미들웨어 추가 예정
-
-// 문의 답변
-router.post('inquiries/:replyId/replies', inquiryController.createInquiryReply); // 인증 미들웨어 추가 예정
 
 export default router;
