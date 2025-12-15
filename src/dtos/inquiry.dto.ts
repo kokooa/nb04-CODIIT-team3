@@ -98,3 +98,21 @@ export interface UpdateInquiryResponseDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
+/* ------------------------------------------------------- */
+
+export interface DeleteInquiryParamsDto {
+  inquiryId: string;
+}
+
+export interface DeleteInquiryResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  isSecret: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
