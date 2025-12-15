@@ -7,6 +7,8 @@ import type {
   InquiryStatus,
   UpdateInquiryParamsDto,
   UpdateInquiryResponseDto,
+  DeleteInquiryParamsDto,
+  DeleteInquiryResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -81,9 +83,22 @@ export const updateInquiry = async (
 ): Promise<UpdateInquiryResponseDto> => {
   // const { title, content, isSecret } = body;
 
-  const inquiryUpdated = await inquiryRepository.updateInquiry(body);
+  const updatedInquiry = await inquiryRepository.updateInquiry(body);
 
-  const { status, ...rest } = inquiryUpdated;
+  const { status, ...rest } = updatedInquiry;
+
+  return { status: status as InquiryStatus, ...rest };
+};
+
+/**
+ * deleteInquiry
+ */
+export const deleteInquiry = async (
+  params: DeleteInquiryParamsDto,
+): Promise<DeleteInquiryResponseDto> => {
+  const deletedInquiry = await inquiryRepository.deleteInquiry(params);
+
+  const { status, ...rest } = deletedInquiry;
 
   return { status: status as InquiryStatus, ...rest };
 };

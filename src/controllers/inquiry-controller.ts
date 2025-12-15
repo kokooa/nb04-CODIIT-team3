@@ -122,8 +122,33 @@ export const updateInquiry = async (
   }
 };
 
-export const deleteInquiry = (req: Request, res: Response) => {
-  // 문의 삭제
+/**
+ * 문의 삭제
+ * @param inquiryId string
+ */
+export const deleteInquiry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { inquiryId } = req.params;
+
+  // 파라미터 유효성 검증
+  if (!inquiryId) {
+    return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+  }
+
+  const params = {
+    inquiryId,
+  };
+
+  try {
+    const result = await inquiryService.deleteInquiry(params);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getInquiryReplyDetail = (req: Request, res: Response) => {

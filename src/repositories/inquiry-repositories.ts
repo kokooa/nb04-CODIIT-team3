@@ -7,6 +7,7 @@ import type {
   FetchInquiryDetailParamsDto,
   InquiryStatus,
   UpdateInquiryParamsDto,
+  DeleteInquiryParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -180,7 +181,9 @@ export const fetchInquiryDetailById = async (
  * updateInquiry
  * @param body UpdateInquiryParamsDto
  */
-export const updateInquiry = async (body: UpdateInquiryParamsDto): Promise<any> => {
+export const updateInquiry = async (
+  body: UpdateInquiryParamsDto,
+): Promise<any> => {
   const { title, content, isSecret } = body;
 
   const inquiryUpdated = await prisma.inquiry.update({
@@ -195,4 +198,22 @@ export const updateInquiry = async (body: UpdateInquiryParamsDto): Promise<any> 
   });
 
   return inquiryUpdated;
+};
+
+/**
+ * deleteInquiry
+ * @param params DeleteInquiryParamsDto
+ */
+export const deleteInquiry = async (
+  params: DeleteInquiryParamsDto,
+): Promise<any> => {
+  const { inquiryId } = params;
+
+  const deletedInquiry = await prisma.inquiry.delete({
+    where: {
+      id: inquiryId,
+    },
+  });
+
+  return deletedInquiry;
 };
