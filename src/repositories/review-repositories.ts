@@ -1,6 +1,6 @@
 import { HttpError } from '../common/httpError.js';
 import prisma from '../common/prisma.js';
-import type {} from '../dtos/review.dto.js';
+import type { UpdateReviewParamsDto } from '../dtos/review.dto.js';
 
 /**
  * reviewId로 상세 리뷰 조회
@@ -22,4 +22,15 @@ export const fetchReviewDetailById = async (reviewId: string) => {
   });
 
   return review;
+};
+
+export const updateReviewById = async (reviewId: string, data: any) => {
+  const updatedReview = await prisma.review.update({
+    where: {
+      id: reviewId,
+    },
+    data,
+  });
+
+  return updatedReview;
 };
