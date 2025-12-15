@@ -80,7 +80,7 @@ export interface FetchInquiryDetailParamsDto {
 
 /* ------------------------------------------------------- */
 
-export interface InquiryUpdateDto {
+export interface UpdateInquiryParamsDto {
   inquiryId: string;
   title: string;
   content: string;

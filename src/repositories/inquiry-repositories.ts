@@ -6,7 +6,7 @@ import type {
   InquiryItemDto,
   FetchInquiryDetailParamsDto,
   InquiryStatus,
-  InquiryUpdateDto,
+  UpdateInquiryParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -178,9 +178,9 @@ export const fetchInquiryDetailById = async (
 
 /**
  * updateInquiry
- * @param body InquiryUpdateDto
+ * @param body UpdateInquiryParamsDto
  */
-export const updateInquiry = async (body: InquiryUpdateDto): Promise<any> => {
+export const updateInquiry = async (body: UpdateInquiryParamsDto): Promise<any> => {
   const { title, content, isSecret } = body;
 
   const inquiryUpdated = await prisma.inquiry.update({

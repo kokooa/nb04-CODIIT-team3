@@ -4,7 +4,7 @@ import type {
   InquiryListResponseDto,
   FetchInquiryDetailParamsDto,
   InquiryDetailResponseDto,
-  InquiryUpdateDto,
+  UpdateInquiryParamsDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
@@ -103,7 +103,7 @@ export const updateInquiry = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const body = req.body as InquiryUpdateDto;
+  const body = req.body as UpdateInquiryParamsDto;
   const { inquiryId } = req.params;
 
   // 파라미터 유효성 검증
