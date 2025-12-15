@@ -227,10 +227,11 @@ model Review {
 
 // 사용자 등급 정의
 enum UserGrade {
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
+  Green // 신규 회원
+  Orange // 100,000원 이상 구매
+  Red // 300,000원 이상 구매
+  Black // 500,000원 이상 구매
+  VIP // 1,000,000원 이상 구매
 }
 
 model UserPoint {
@@ -238,7 +239,7 @@ model UserPoint {
   userId          Int       @unique
   points          Int       @default(0) // 💡 필드 이름을 'points'로 통일했습니다. 
   accumulatedAmount Int     @default(0) 
-  grade           UserGrade @default(BRONZE) 
+  grade           UserGrade @default(Green) 
   pointRate       Float     @default(0.01) 
 
   // 관계 설정
