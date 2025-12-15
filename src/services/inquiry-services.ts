@@ -1,3 +1,4 @@
+import { HttpError } from '../common/httpError.js';
 import type {
   FetchInquiriesParamsDto,
   InquiryItemDto,
@@ -58,9 +59,20 @@ export const getInquiries = async (
 export const getInquiryDetail = async (
   params: FetchInquiryDetailParamsDto,
 ): Promise<InquiryDetailResponseDto> => {
-  const inquiryDetail = await inquiryRepository.fetchInquiryDetailById(params);
+  const { userId, inquiryId } = params;
 
-  const { reply, status, ...rest } = inquiryDetail;
+  const inquiryDetail =
+    await inquiryRepository.fetchInquiryDetailById(inquiryId);
+
+  // 비밀글이면 구매자/판매자만 조회 가능
+  if (
+    inquiryDetail.isSecret &&
+    inquiryDetail.userId !== userId &&
+    inquiryDetail.product.store.sellerId !== userId
+  )
+    throw new HttpError('비밀글입니다.', 403);
+
+  const { reply, status, product, ...rest } = inquiryDetail;
 
   if (reply) {
     const { seller, ...replyRest } = reply;

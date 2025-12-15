@@ -80,8 +80,16 @@ export const getInquiryDetail = async (
       return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
     }
 
+    // User 정보 받아오기 및 유효성 검증
+    let userId = undefined;
+    userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+    /* if (!userId) {
+      return next(new HttpError('인증이 필요합니다.', 401));
+    } */
+
     // DTO 생성
     const params: FetchInquiryDetailParamsDto = {
+      userId,
       inquiryId,
     };
 

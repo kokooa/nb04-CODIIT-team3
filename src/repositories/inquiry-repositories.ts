@@ -134,12 +134,10 @@ export const countTotalInquiries = async (
  * inquiryId로 상세 문의 조회
  * @param inquiryId string
  */
-export const fetchInquiryDetailById = async (
-  params: FetchInquiryDetailParamsDto,
-): Promise<any> => {
+export const fetchInquiryDetailById = async (inquiryId: string) => {
   const inquiry = await prisma.inquiry.findUnique({
     where: {
-      id: params.inquiryId,
+      id: inquiryId,
     },
     select: {
       id: true,
@@ -151,6 +149,15 @@ export const fetchInquiryDetailById = async (
       isSecret: true,
       createdAt: true,
       updatedAt: true,
+      product: {
+        select: {
+          store: {
+            select: {
+              sellerId: true,
+            },
+          },
+        },
+      },
       user: {
         select: {
           name: true,
@@ -183,9 +190,7 @@ export const fetchInquiryDetailById = async (
  * updateInquiry
  * @param body UpdateInquiryParamsDto
  */
-export const updateInquiry = async (
-  body: UpdateInquiryParamsDto,
-): Promise<any> => {
+export const updateInquiry = async (body: UpdateInquiryParamsDto) => {
   const { title, content, isSecret } = body;
 
   const inquiryUpdated = await prisma.inquiry.update({
@@ -206,9 +211,7 @@ export const updateInquiry = async (
  * deleteInquiry
  * @param params DeleteInquiryParamsDto
  */
-export const deleteInquiry = async (
-  params: DeleteInquiryParamsDto,
-): Promise<any> => {
+export const deleteInquiry = async (params: DeleteInquiryParamsDto) => {
   const { inquiryId } = params;
 
   const deletedInquiry = await prisma.inquiry.delete({
@@ -224,9 +227,7 @@ export const deleteInquiry = async (
  * createInquiryReply
  * @param body CreateInquiryReplyParamsDto
  */
-export const createInquiryReply = async (
-  body: CreateInquiryReplyParamsDto,
-): Promise<any> => {
+export const createInquiryReply = async (body: CreateInquiryReplyParamsDto) => {
   const createdInquiry = await prisma.inquiryReply.create({
     data: {
       inquiryId: body.inquiryId,
