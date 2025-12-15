@@ -152,3 +152,5 @@ export interface UpdateInquiryReplyResponseDto {
   updatedAt: Date;
   user: InquiryUserDto;
 }
+
+/* ------------------------------------------------------- */
