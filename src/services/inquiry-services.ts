@@ -101,7 +101,12 @@ export const updateInquiry = async (
 
   const updatedInquiry = await inquiryRepository.updateInquiry(body);
 
-  const { status, ...rest } = updatedInquiry;
+  const { status, reply, ...rest } = updatedInquiry;
+
+  // 이미 답변이 달린 문의면 수정 불가
+  if (reply) {
+    throw new HttpError('이미 답변이 달린 문의입니다.', 400);
+  }
 
   return { status: status as InquiryStatus, ...rest };
 };
