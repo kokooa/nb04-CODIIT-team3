@@ -16,3 +16,18 @@ export interface ReviewDetailParamsDto {
 }
 
 /* ------------------------------------------------------- */
+
+export interface UpdateReviewResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  content: string;
+  createdAt: Date;
+}
+
+export interface UpdateReviewParamsDto {
+  reviewId: string;
+  userId: string;
+  data: any;
+}
