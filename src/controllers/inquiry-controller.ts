@@ -6,6 +6,7 @@ import type {
   InquiryDetailResponseDto,
   UpdateInquiryParamsDto,
   CreateInquiryReplyParamsDto,
+  UpdateInquiryReplyParamsDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
@@ -157,6 +158,11 @@ export const deleteInquiry = async (
   // 문의 답변 상세 조회
 }; */
 
+/**
+ * createInquiryReply
+ * @param body CreateInquiryReplyParamsDto
+ * @param inquiryId string
+ */
 export const createInquiryReply = async (
   req: Request,
   res: Response,
@@ -188,6 +194,36 @@ export const createInquiryReply = async (
   }
 };
 
-export const updateInquiryReply = (req: Request, res: Response) => {
-  // 문의 답변 수정
+/**
+ * updateInquiryReply
+ * @param content string
+ * @param replyId string
+ */
+export const updateInquiryReply = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { content } = req.body as {
+    content: string;
+  };
+  const { replyId } = req.params;
+
+  // 파라미터 유효성 검증
+  if (!replyId) {
+    return next(new HttpError('replyId가 없거나 잘못되었습니다.', 400));
+  }
+
+  const params: UpdateInquiryReplyParamsDto = {
+    replyId,
+    content,
+  };
+
+  try {
+    const result = await inquiryService.updateInquiryReply(params);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 };

@@ -11,6 +11,8 @@ import type {
   DeleteInquiryResponseDto,
   CreateInquiryReplyParamsDto,
   CreateInquiryReplyResponseDto,
+  UpdateInquiryReplyParamsDto,
+  UpdateInquiryReplyResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repositories.js';
 
@@ -118,14 +120,42 @@ export const createInquiryReply = async (
   // const { inquiryId, content } = body;
 
   // 문의 답변 생성
-  const createdInquiry = await inquiryRepository.createInquiryReply(body);
-  const { sellerId, ...restCreatedInquiry } = createdInquiry;
+  const createdInquiryReply = await inquiryRepository.createInquiryReply(body);
+  const { sellerId, ...restCreatedInquiry } = createdInquiryReply;
 
   // 답변자 정보 받아오기
   const userInfo = await inquiryRepository.fetchUserById(sellerId);
 
   const result: CreateInquiryReplyResponseDto = {
     ...restCreatedInquiry,
+    userId: sellerId,
+    user: {
+      id: userInfo.id,
+      name: userInfo.name,
+    },
+  };
+
+  return result;
+};
+
+/**
+ * updateInquiryReply
+ * @param params UpdateInquiryReplyParamsDto
+ * @returns UpdateInquiryReplyResponseDto
+ */
+export const updateInquiryReply = async (
+  params: UpdateInquiryReplyParamsDto,
+): Promise<UpdateInquiryReplyResponseDto> => {
+  const updatedInquiryReply =
+    await inquiryRepository.updateInquiryReply(params);
+
+  const { sellerId, ...rest } = updatedInquiryReply;
+
+  // 답변자 정보 받아오기
+  const userInfo = await inquiryRepository.fetchUserById(sellerId);
+
+  const result: UpdateInquiryReplyResponseDto = {
+    ...rest,
     userId: sellerId,
     user: {
       id: userInfo.id,

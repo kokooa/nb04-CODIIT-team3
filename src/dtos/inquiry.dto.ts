@@ -135,3 +135,20 @@ export interface CreateInquiryReplyResponseDto {
   updatedAt: Date;
   user: InquiryUserDto;
 }
+
+/* ------------------------------------------------------- */
+
+export interface UpdateInquiryReplyParamsDto {
+  replyId: string;
+  content: string;
+}
+
+export interface UpdateInquiryReplyResponseDto {
+  id: string;
+  inquiryId: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: InquiryUserDto;
+}
