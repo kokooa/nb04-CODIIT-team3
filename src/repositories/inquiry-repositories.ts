@@ -6,6 +6,7 @@ import type {
   InquiryItemDto,
   FetchInquiryDetailParamsDto,
   InquiryStatus,
+  InquiryUpdateDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -91,7 +92,7 @@ export const fetchInquiries = async (
     take: pageSize,
   });
 
-  return inquiries.map((inquiry) => ({
+  return inquiries.map(inquiry => ({
     ...inquiry,
     status: inquiry.status as InquiryStatus,
   }));
@@ -132,7 +133,7 @@ export const countTotalInquiries = async (
  */
 export const fetchInquiryDetailById = async (
   params: FetchInquiryDetailParamsDto,
-) => {
+): Promise<any> => {
   const inquiry = await prisma.inquiry.findUnique({
     where: {
       id: params.inquiryId,
@@ -173,4 +174,25 @@ export const fetchInquiryDetailById = async (
   }
 
   return inquiry;
+};
+
+/**
+ * updateInquiry
+ * @param body InquiryUpdateDto
+ */
+export const updateInquiry = async (body: InquiryUpdateDto): Promise<any> => {
+  const { title, content, isSecret } = body;
+
+  const inquiryUpdated = await prisma.inquiry.update({
+    where: {
+      id: body.inquiryId,
+    },
+    data: {
+      title,
+      content,
+      isSecret,
+    },
+  });
+
+  return inquiryUpdated;
 };

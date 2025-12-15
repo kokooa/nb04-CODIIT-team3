@@ -4,6 +4,7 @@ import type {
   InquiryListResponseDto,
   FetchInquiryDetailParamsDto,
   InquiryDetailResponseDto,
+  InquiryUpdateDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/httpError.js';
@@ -97,12 +98,28 @@ export const getInquiryDetail = async (
  * @param inquiryId string
  * @body title, content, isSecret
  */
-export const updateInquiry = (
+export const updateInquiry = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  
+  const body = req.body as InquiryUpdateDto;
+  const { inquiryId } = req.params;
+
+  // 파라미터 유효성 검증
+  if (!inquiryId) {
+    return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+  }
+
+  body.inquiryId = inquiryId;
+
+  try {
+    const result = await inquiryService.updateInquiry(body);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteInquiry = (req: Request, res: Response) => {
