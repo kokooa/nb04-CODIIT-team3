@@ -188,7 +188,7 @@ export const createInquiryReply = async (
   try {
     const result = await inquiryService.createInquiryReply(body);
 
-    res.status(200).json(result);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
