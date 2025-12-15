@@ -87,7 +87,7 @@ export interface InquiryUpdateDto {
   isSecret: boolean;
 }
 
-export interface InquiryUpdateResponseDto {
+export interface UpdateInquiryResponseDto {
   id: string;
   userId: string;
   productId: string;
