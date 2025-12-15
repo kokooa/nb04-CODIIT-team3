@@ -9,6 +9,7 @@ import type {
   UpdateInquiryParamsDto,
   DeleteInquiryParamsDto,
   CreateInquiryReplyParamsDto,
+  UpdateInquiryReplyParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -253,4 +254,25 @@ export const fetchUserById = async (userId: string) => {
   }
 
   return user;
+};
+
+/**
+ * updateInquiryReply
+ * @param params UpdateInquiryReplyParamsDto
+ */
+export const updateInquiryReply = async (
+  params: UpdateInquiryReplyParamsDto,
+) => {
+  const { replyId, content } = params;
+
+  const updatedInquiryReply = await prisma.inquiryReply.update({
+    where: {
+      id: replyId,
+    },
+    data: {
+      content,
+    },
+  });
+
+  return updatedInquiryReply;
 };
