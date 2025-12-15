@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "dev": "nodemon --exec tsx src/app.ts",
-    "start": "node dist/app.js",
+    "dev": "nodemon --exec tsx src/main.ts",
+    "start": "node dist/main.js",
     "prisma:generate": "prisma generate"
   },
   "keywords": [],
