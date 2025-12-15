@@ -79,3 +79,22 @@ export interface FetchInquiryDetailParamsDto {
 }
 
 /* ------------------------------------------------------- */
+
+export interface InquiryUpdateDto {
+  inquiryId: string;
+  title: string;
+  content: string;
+  isSecret: boolean;
+}
+
+export interface InquiryUpdateResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  isSecret: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
