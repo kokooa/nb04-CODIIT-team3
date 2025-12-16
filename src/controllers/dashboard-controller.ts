@@ -1,10 +1,9 @@
 // src/controllers/dashboard-controller.ts
 import { Request, Response, NextFunction } from 'express';
 import { dashboardService } from '../services/dashboard-service';
-import { AuthenticatedRequest } from '../common/middlewares';
 
 class DashboardController {
-  async getSalesSummary(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async getSalesSummary(req: Request, res: Response, next: NextFunction) {
     try {
       const sellerId = req.user!.id;
       const { startDate, endDate } = req.query;
@@ -20,7 +19,7 @@ class DashboardController {
     }
   }
 
-  async getTopProducts(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async getTopProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const sellerId = req.user!.id;
       const { startDate, endDate } = req.query;
@@ -35,7 +34,7 @@ class DashboardController {
     }
   }
 
-  async getSalesByPriceRange(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async getSalesByPriceRange(req: Request, res: Response, next: NextFunction) {
     try {
       const sellerId = req.user!.id;
       const { startDate, endDate } = req.query;
