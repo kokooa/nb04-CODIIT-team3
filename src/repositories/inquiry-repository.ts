@@ -1,10 +1,9 @@
 import type { $Enums } from '@prisma/client';
-import { HttpError } from '../common/httpError.js';
+import { HttpError } from '../common/http-error.js';
 import prisma from '../common/prisma.js';
 import type {
   FetchInquiriesParamsDto,
   InquiryItemDto,
-  FetchInquiryDetailParamsDto,
   InquiryStatus,
   UpdateInquiryParamsDto,
   DeleteInquiryParamsDto,

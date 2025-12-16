@@ -1,4 +1,4 @@
-import { HttpError } from '../common/httpError.js';
+import { HttpError } from '../common/http-error.js';
 import type {
   FetchInquiriesParamsDto,
   InquiryItemDto,
