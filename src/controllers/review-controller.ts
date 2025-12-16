@@ -6,7 +6,7 @@ import type {
   GetReviewsParamsDto,
   CreateReviewParamsDto,
 } from '../dtos/review.dto.js';
-import { HttpError } from '../common/httpError.js';
+import { HttpError } from '../common/http-error.js';
 import * as reviewService from '../services/review-service.js';
 
 /**
