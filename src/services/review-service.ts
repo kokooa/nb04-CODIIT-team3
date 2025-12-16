@@ -99,6 +99,10 @@ export const createReview = async (
   // const product = await productRepository.fetchProductById(params.productId);
   // if (!product) return throw new HttpError("요청한 리소스를 찾을 수 없습니다.", 404);
 
+  // 자신이 구매한 상품인지 검사
+  // 구현 예정
+
+  // 리뷰 작성
   const createdReview = await reviewRepository.createReview(params);
 
   if (!createdReview) {
