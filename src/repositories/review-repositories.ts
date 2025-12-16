@@ -1,6 +1,6 @@
 import { HttpError } from '../common/httpError.js';
 import prisma from '../common/prisma.js';
-import type { UpdateReviewParamsDto } from '../dtos/review.dto.js';
+import type { GetReviewsParamsDto } from '../dtos/review.dto.js';
 
 /**
  * reviewId로 상세 리뷰 조회
@@ -43,4 +43,22 @@ export const deleteReviewById = async (reviewId: string) => {
   });
 
   return deletedReview;
+};
+
+export const fetchReviewsByProductId = async (params: GetReviewsParamsDto) => {
+  const { productId, limit, page } = params;
+
+  const skip = (page - 1) * limit;
+  const reviews = await prisma.review.findMany({
+    where: {
+      productId,
+    },
+    skip,
+    take: limit,
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return reviews;
 };
