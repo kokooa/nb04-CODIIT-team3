@@ -9,9 +9,8 @@ import type {
   UpdateInquiryReplyParamsDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
-import { HttpError } from '../common/httpError.js';
+import { HttpError } from '../common/http-error.js';
 import * as inquiryService from '../services/inquiry-service.js';
-import type { Create } from 'payload';
 
 /**
  * 내 문의 조회 (판매자, 구매자 공용)
