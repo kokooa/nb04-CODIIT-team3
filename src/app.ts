@@ -1,4 +1,5 @@
 import inquiryRoutes from './routes/inquiry-router.js';
+import reviewRoutes from './routes/review-router.js';
 import { errorHandler } from './common/error-handler.js';
 import express from 'express';
 import prisma from './common/prisma.js';
@@ -8,6 +9,7 @@ const app = express();
 // 미들웨어 설정
 app.use(express.json());
 app.use('/inquiries', inquiryRoutes);
+app.use('/review', reviewRoutes);
 
 // 에러 핸들러
 app.use(errorHandler);
