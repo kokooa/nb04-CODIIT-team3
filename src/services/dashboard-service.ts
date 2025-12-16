@@ -1,10 +1,8 @@
-// src/services/dashboard-service.ts
 import { PrismaClient, Product } from '@prisma/client';
-import { SalesData, PeriodData, OrderSales, TopSale, PriceRange, ChangeRate } from 'project-codiit-fe-main/src/types/dashboard'; // Assuming types can be imported like this
+import { SalesData, PeriodData, OrderSales, TopSale, PriceRange, ChangeRate } from 'project-codiit-fe-main/src/types/dashboard';
 
 const prisma = new PrismaClient();
 
-// Helper to get start/end dates for various periods
 const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
     const now = new Date();
     let startCurrent: Date, endCurrent: Date, startPrevious: Date, endPrevious: Date;
@@ -42,7 +40,6 @@ const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
 
 class DashboardService {
 
-  // Reusable function to get sales data for a specific period
   private async getSalesDataForPeriod(sellerId: number, startDate: Date, endDate: Date): Promise<OrderSales> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return { totalOrders: 0, totalSales: 0 };
@@ -62,7 +59,6 @@ class DashboardService {
       return { totalOrders, totalSales };
   }
 
-  // Function to get Top 5 Products, formatted for the frontend
   private async getTopProducts(sellerId: number, startDate: Date, endDate: Date): Promise<TopSale[]> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return [];
@@ -89,7 +85,7 @@ class DashboardService {
           const product = productsMap.get(item.productId)!;
           return {
               totalOrders: item._sum.quantity || 0,
-              prodcuts: { // Note: 'prodcuts' is a typo in the frontend type, matching it here.
+              prodcuts: {
                   id: product.id.toString(),
                   name: product.name,
                   price: product.price,
@@ -99,7 +95,6 @@ class DashboardService {
       return topSales;
   }
 
-    // Function to get sales by price range, formatted for the frontend
     private async getSalesByPriceRange(sellerId: number, startDate: Date, endDate: Date): Promise<PriceRange[]> {
         const store = await prisma.store.findUnique({ where: { sellerId } });
         if (!store) return [];
@@ -145,8 +140,6 @@ class DashboardService {
         });
     }
 
-
-  // Main function to aggregate all dashboard data
   public async getAggregatedDashboardData(sellerId: number): Promise<SalesData> {
     const periods: ('today' | 'week' | 'month' | 'year')[] = ['today', 'week', 'month', 'year'];
     const periodDataPromises = periods.map(async (period): Promise<[string, PeriodData]> => {
@@ -157,7 +150,7 @@ class DashboardService {
             this.getSalesDataForPeriod(sellerId, startPrevious, endPrevious)
         ]);
 
-        const chageRate: ChangeRate = { // Typo 'chageRate' matches frontend type
+        const chageRate: ChangeRate = {
             totalOrders: previous.totalOrders === 0 ? (current.totalOrders > 0 ? 100 : 0) : parseFloat((((current.totalOrders - previous.totalOrders) / previous.totalOrders) * 100).toFixed(2)),
             totalSales: previous.totalSales === 0 ? (current.totalSales > 0 ? 100 : 0) : parseFloat((((current.totalSales - previous.totalSales) / previous.totalSales) * 100).toFixed(2)),
         };
@@ -174,8 +167,8 @@ class DashboardService {
         priceRange
     ] = await Promise.all([
         Promise.all(periodDataPromises),
-        this.getTopProducts(sellerId, thirtyDaysAgo, now), // Use last 30 days
-        this.getSalesByPriceRange(sellerId, thirtyDaysAgo, now) // Use last 30 days
+        this.getTopProducts(sellerId, thirtyDaysAgo, now),
+        this.getSalesByPriceRange(sellerId, thirtyDaysAgo, now)
     ]);
 
     const periodDataObject = Object.fromEntries(periodResults);
