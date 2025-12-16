@@ -31,3 +31,12 @@ export interface UpdateReviewParamsDto {
   userId: string;
   data: any;
 }
+
+/* ------------------------------------------------------- */
+
+export interface DeleteReviewParamsDto {
+  reviewId: string;
+  userId: string;
+}
+
+/* ------------------------------------------------------- */

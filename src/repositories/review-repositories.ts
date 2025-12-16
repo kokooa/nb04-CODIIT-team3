@@ -34,3 +34,13 @@ export const updateReviewById = async (reviewId: string, data: any) => {
 
   return updatedReview;
 };
+
+export const deleteReviewById = async (reviewId: string) => {
+  const deletedReview = await prisma.review.delete({
+    where: {
+      id: reviewId,
+    },
+  });
+
+  return deletedReview;
+};

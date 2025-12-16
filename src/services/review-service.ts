@@ -4,6 +4,7 @@ import type {
   ReviewDetailResponseDto,
   UpdateReviewParamsDto,
   UpdateReviewResponseDto,
+  DeleteReviewParamsDto,
 } from '../dtos/review.dto.js';
 import * as reviewRepository from '../repositories/review-repositories.js';
 
@@ -45,8 +46,19 @@ export const updateReview = async (
   return updatedReview;
 };
 
-export const deleteReview = async (reviewId: string) => {
-  // 리뷰 삭제
+export const deleteReview = async (params: DeleteReviewParamsDto) => {
+  const deletedReview = await reviewRepository.deleteReviewById(
+    params.reviewId,
+  );
+
+  if (!deletedReview) {
+    throw new HttpError('요청한 리소스를 찾을 수 없습니다.', 404);
+  }
+
+  if (deletedReview.userId !== params.userId) {
+    throw new HttpError('권한이 없습니다.', 403);
+  }
+  return deletedReview;
 };
 
 export const getReviews = async (productId: string) => {

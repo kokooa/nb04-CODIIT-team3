@@ -89,7 +89,31 @@ export const deleteReview = async (
   res: Response,
   next: NextFunction,
 ) => {
-  // 리뷰 삭제
+  const { reviewId } = req.params;
+
+  // 파라미터 유효성 검증
+  if (!reviewId) {
+    return next(new HttpError('reviewId가 없거나 잘못되었습니다.', 400));
+  }
+
+  // User 정보 받아오기 및 유효성 검증
+  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
+
+  const params = {
+    reviewId,
+    userId,
+  };
+
+  try {
+    await reviewService.deleteReview(params);
+
+    res.status(200).end();
+  } catch (error) {
+    next(error);
+  }
 };
 
 /**
@@ -100,9 +124,7 @@ export const getReviews = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
-  // 상품 리뷰 목록 조회
-};
+) => {};
 
 /**
  * 상품 리뷰 작성 (상품ID)
