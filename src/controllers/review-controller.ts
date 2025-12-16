@@ -1,5 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { ReviewDetailParamsDto } from '../dtos/review.dto.js';
+import type {
+  ReviewDetailParamsDto,
+  UpdateReviewParamsDto,
+  DeleteReviewParamsDto,
+  GetReviewsParamsDto,
+} from '../dtos/review.dto.js';
 import { HttpError } from '../common/httpError.js';
 import * as reviewService from '../services/review-service.js';
 
@@ -65,7 +70,7 @@ export const updateReview = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  const params = {
+  const params: UpdateReviewParamsDto = {
     reviewId,
     userId,
     data,
@@ -102,13 +107,17 @@ export const deleteReview = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  const params = {
+  const params: DeleteReviewParamsDto = {
     reviewId,
     userId,
   };
 
   try {
-    await reviewService.deleteReview(params);
+    const isDeleted = await reviewService.deleteReview(params);
+
+    if (!isDeleted) {
+      return next(new HttpError('리뷰 삭제에 실패했습니다.', 500));
+    }
 
     res.status(200).end();
   } catch (error) {
@@ -124,7 +133,43 @@ export const getReviews = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {};
+) => {
+  const { productId } = req.params;
+  const { page, limit } = req.query;
+
+  // 파라미터 유효성 검증
+  if (!productId) {
+    return next(new HttpError('productId가 없거나 잘못되었습니다.', 400));
+  }
+
+  const pageNumber = Number(page) || 1;
+  const limitNumber = Number(limit) || 10;
+
+  if (pageNumber < 1 || limitNumber < 1) {
+    return next(new HttpError('page와 limit은 1 이상의 정수여야 합니다.', 400));
+  }
+
+  // User 정보 받아오기 및 유효성 검증
+  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
+
+  const params: GetReviewsParamsDto = {
+    productId,
+    limit: limitNumber,
+    page: pageNumber,
+    userId,
+  };
+
+  try {
+    const reviews = await reviewService.getReviews(params);
+
+    res.status(200).json(reviews);
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * 상품 리뷰 작성 (상품ID)

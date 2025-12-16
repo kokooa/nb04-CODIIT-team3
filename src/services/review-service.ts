@@ -5,6 +5,8 @@ import type {
   UpdateReviewParamsDto,
   UpdateReviewResponseDto,
   DeleteReviewParamsDto,
+  GetReviewsParamsDto,
+  GetReviewsResponseDto,
 } from '../dtos/review.dto.js';
 import * as reviewRepository from '../repositories/review-repositories.js';
 
@@ -46,7 +48,9 @@ export const updateReview = async (
   return updatedReview;
 };
 
-export const deleteReview = async (params: DeleteReviewParamsDto) => {
+export const deleteReview = async (
+  params: DeleteReviewParamsDto,
+): Promise<boolean> => {
   const deletedReview = await reviewRepository.deleteReviewById(
     params.reviewId,
   );
@@ -58,11 +62,18 @@ export const deleteReview = async (params: DeleteReviewParamsDto) => {
   if (deletedReview.userId !== params.userId) {
     throw new HttpError('권한이 없습니다.', 403);
   }
-  return deletedReview;
+
+  return deletedReview ? true : false;
 };
 
-export const getReviews = async (productId: string) => {
-  // 상품 리뷰 목록 조회
+export const getReviews = async (
+  params: GetReviewsParamsDto,
+): Promise<GetReviewsResponseDto> => {
+  const { userId } = params;
+
+  const reviews = reviewRepository.fetchReviewsByProductId(params);
+
+  return reviews;
 };
 
 export const createReview = async (productId: string) => {

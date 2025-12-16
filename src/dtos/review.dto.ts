@@ -40,3 +40,21 @@ export interface DeleteReviewParamsDto {
 }
 
 /* ------------------------------------------------------- */
+
+export interface GetReviewsParamsDto {
+  productId: string;
+  limit: number;
+  page: number;
+  userId: string;
+}
+
+export type GetReviewsResponseDto = {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  content: string;
+  createdAt: Date;
+}[];
+
+/* ------------------------------------------------------- */
