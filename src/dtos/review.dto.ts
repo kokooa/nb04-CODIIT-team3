@@ -29,7 +29,9 @@ export interface UpdateReviewResponseDto {
 export interface UpdateReviewParamsDto {
   reviewId: string;
   userId: string;
-  data: any;
+  data: {
+    rating: number;
+  };
 }
 
 /* ------------------------------------------------------- */
@@ -56,5 +58,26 @@ export type GetReviewsResponseDto = {
   content: string;
   createdAt: Date;
 }[];
+
+/* ------------------------------------------------------- */
+
+export interface CreateReviewParamsDto {
+  productId: string;
+  userId: string;
+  data: {
+    rating: number;
+    content: string;
+    orderItemId: string;
+  };
+}
+
+export interface CreateReviewResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  content: string;
+  createdAt: Date;
+}
 
 /* ------------------------------------------------------- */

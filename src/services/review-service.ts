@@ -7,6 +7,8 @@ import type {
   DeleteReviewParamsDto,
   GetReviewsParamsDto,
   GetReviewsResponseDto,
+  CreateReviewParamsDto,
+  CreateReviewResponseDto,
 } from '../dtos/review.dto.js';
 import * as reviewRepository from '../repositories/review-repositories.js';
 
@@ -76,6 +78,18 @@ export const getReviews = async (
   return reviews;
 };
 
-export const createReview = async (productId: string) => {
-  // 상품 리뷰 작성
+export const createReview = async (
+  params: CreateReviewParamsDto,
+): Promise<CreateReviewResponseDto> => {
+  // 해당 상품이 있는지 유효성 검사
+  // const product = await productRepository.fetchProductById(params.productId);
+  // if (!product) return throw new HttpError("요청한 리소스를 찾을 수 없습니다.", 404);
+
+  const createdReview = await reviewRepository.createReview(params);
+
+  if (!createdReview) {
+    throw new HttpError('리뷰 작성에 실패했습니다.', 500);
+  }
+
+  return createdReview;
 };

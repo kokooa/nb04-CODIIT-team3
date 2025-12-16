@@ -1,6 +1,8 @@
-import { HttpError } from '../common/httpError.js';
 import prisma from '../common/prisma.js';
-import type { GetReviewsParamsDto } from '../dtos/review.dto.js';
+import type {
+  GetReviewsParamsDto,
+  CreateReviewParamsDto,
+} from '../dtos/review.dto.js';
 
 /**
  * reviewId로 상세 리뷰 조회
@@ -61,4 +63,18 @@ export const fetchReviewsByProductId = async (params: GetReviewsParamsDto) => {
   });
 
   return reviews;
+};
+
+export const createReview = async (params: CreateReviewParamsDto) => {
+  const { productId, userId, data } = params;
+
+  const createdReview = await prisma.review.create({
+    data: {
+      ...data,
+      productId,
+      userId,
+    },
+  });
+
+  return createdReview;
 };
