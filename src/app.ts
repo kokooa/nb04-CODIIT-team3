@@ -6,7 +6,7 @@ const app = express();
 
 // 미들웨어 설정
 app.use(express.json());
-app.use('/api', inquiryRoutes);
+app.use('/inquiries', inquiryRoutes);
 
 // 에러 핸들러
 // 구현 예정
