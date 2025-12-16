@@ -4,6 +4,7 @@ import type {
   UpdateReviewParamsDto,
   DeleteReviewParamsDto,
   GetReviewsParamsDto,
+  CreateReviewParamsDto,
 } from '../dtos/review.dto.js';
 import { HttpError } from '../common/httpError.js';
 import * as reviewService from '../services/review-service.js';
@@ -55,9 +56,9 @@ export const updateReview = async (
   next: NextFunction,
 ) => {
   const { reviewId } = req.params;
-  const data = req.body as {
+  const data: {
     rating: number;
-  };
+  } = req.body;
 
   // 파라미터 유효성 검증
   if (!reviewId) {
@@ -180,5 +181,36 @@ export const createReview = async (
   res: Response,
   next: NextFunction,
 ) => {
-  // 상품 리뷰 작성
+  const { productId } = req.params;
+
+  // 파라미터 유효성 검증
+  if (!productId) {
+    return next(new HttpError('productId가 없거나 잘못되었습니다.', 400));
+  }
+
+  const data: {
+    rating: number;
+    content: string;
+    orderItemId: string;
+  } = req.body;
+
+  // User 정보 받아오기 및 유효성 검증
+  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
+
+  const params: CreateReviewParamsDto = {
+    productId,
+    userId,
+    data,
+  };
+
+  try {
+    const createdReview = await reviewService.createReview(params);
+
+    res.status(201).json(createdReview);
+  } catch (error) {
+    next(error);
+  }
 };
