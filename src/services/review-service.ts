@@ -53,6 +53,20 @@ export const updateReview = async (
 export const deleteReview = async (
   params: DeleteReviewParamsDto,
 ): Promise<boolean> => {
+  // 삭제하려는 리뷰가 본인이 작성한 것인지 검증
+  const review = await reviewRepository.fetchReviewDetailById(
+    params.reviewId,
+  );
+
+  if (!review) {
+    throw new HttpError('요청한 리소스를 찾을 수 없습니다.', 404);
+  }
+
+  if (review.userId !== params.userId) {
+    throw new HttpError('권한이 없습니다.', 403);
+  }
+
+  // 리뷰 삭제
   const deletedReview = await reviewRepository.deleteReviewById(
     params.reviewId,
   );
