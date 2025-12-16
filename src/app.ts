@@ -1,4 +1,5 @@
 import inquiryRoutes from './routes/inquiry-router.js';
+import { errorHandler } from './common/error-handler.js';
 import express from 'express';
 import prisma from './common/prisma.js';
 
@@ -9,7 +10,7 @@ app.use(express.json());
 app.use('/inquiries', inquiryRoutes);
 
 // 에러 핸들러
-// 구현 예정
+app.use(errorHandler);
 
 // 명시적 DB 연결
 await prisma.$connect();
