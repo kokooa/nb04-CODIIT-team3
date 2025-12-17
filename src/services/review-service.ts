@@ -95,12 +95,26 @@ export const getReviews = async (
 export const createReview = async (
   params: CreateReviewParamsDto,
 ): Promise<CreateReviewResponseDto> => {
-  // 해당 상품이 있는지 유효성 검사
-  // const product = await productRepository.fetchProductById(params.productId);
-  // if (!product) return throw new HttpError("요청한 리소스를 찾을 수 없습니다.", 404);
+  const { productId, userId, data } = params;
 
-  // 자신이 구매한 상품인지 검사
-  // 구현 예정
+  // 주문 내역 유효성 검사 (구매 여부 및 본인 확인)
+  const orderItem = await reviewRepository.fetchOrderItem(data.orderItemId);
+
+  if (!orderItem) {
+    throw new HttpError('주문 내역을 찾을 수 없습니다.', 404);
+  }
+  if (orderItem.productId !== productId) {
+    throw new HttpError('해당 상품에 대한 주문 내역이 아닙니다.', 400);
+  }
+  if (orderItem.order.userId !== userId) {
+    throw new HttpError('본인의 주문 내역에 대해서만 리뷰를 작성할 수 있습니다.', 403);
+  }
+
+  // 중복 리뷰 검사
+  const reviewExists = await reviewRepository.checkReviewExists(data.orderItemId);
+  if (reviewExists) {
+    throw new HttpError('이미 해당 주문 내역에 대한 리뷰를 작성했습니다.', 409);
+  }
 
   // 리뷰 작성
   const createdReview = await reviewRepository.createReview(params);
