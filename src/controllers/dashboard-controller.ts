@@ -1,4 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
 import { dashboardService } from '../services/dashboard-service';
 
 class DashboardController {

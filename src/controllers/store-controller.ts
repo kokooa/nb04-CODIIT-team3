@@ -1,5 +1,8 @@
 // src/controllers/store-controller.ts
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
 import { StoreService } from '../services/store-service';
 import { UserRole } from '@prisma/client';
 

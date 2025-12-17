@@ -1,4 +1,7 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { authRouter } from './routes/auth-router';

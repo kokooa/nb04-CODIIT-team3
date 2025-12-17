@@ -1,5 +1,5 @@
-import { PrismaClient, Product } from '@prisma/client';
-import { SalesData, PeriodData, OrderSales, TopSale, PriceRange, ChangeRate } from 'project-codiit-fe-main/src/types/dashboard';
+import { PrismaClient } from '@prisma/client';
+import * as DashboardTypes from '../types/dashboard.js';
 
 const prisma = new PrismaClient();
 
@@ -40,7 +40,7 @@ const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
 
 class DashboardService {
 
-  private async getSalesDataForPeriod(sellerId: number, startDate: Date, endDate: Date): Promise<OrderSales> {
+  private async getSalesDataForPeriod(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.OrderSales> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return { totalOrders: 0, totalSales: 0 };
 
@@ -59,7 +59,7 @@ class DashboardService {
       return { totalOrders, totalSales };
   }
 
-  private async getTopProducts(sellerId: number, startDate: Date, endDate: Date): Promise<TopSale[]> {
+  private async getTopProducts(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.TopSale[]> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return [];
 
@@ -81,7 +81,7 @@ class DashboardService {
       });
       const productsMap = new Map(products.map(p => [p.id, p]));
 
-      const topSales: TopSale[] = topProductsData.map(item => {
+      const topSales: DashboardTypes.TopSale[] = topProductsData.map(item => {
           const product = productsMap.get(item.productId)!;
           return {
               totalOrders: item._sum.quantity || 0,
@@ -95,7 +95,7 @@ class DashboardService {
       return topSales;
   }
 
-    private async getSalesByPriceRange(sellerId: number, startDate: Date, endDate: Date): Promise<PriceRange[]> {
+    private async getSalesByPriceRange(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.PriceRange[]> {
         const store = await prisma.store.findUnique({ where: { sellerId } });
         if (!store) return [];
 
@@ -140,9 +140,9 @@ class DashboardService {
         });
     }
 
-  public async getAggregatedDashboardData(sellerId: number): Promise<SalesData> {
+  public async getAggregatedDashboardData(sellerId: number): Promise<DashboardTypes.SalesData> {
     const periods: ('today' | 'week' | 'month' | 'year')[] = ['today', 'week', 'month', 'year'];
-    const periodDataPromises = periods.map(async (period): Promise<[string, PeriodData]> => {
+    const periodDataPromises = periods.map(async (period): Promise<[string, DashboardTypes.PeriodData]> => {
         const { startCurrent, endCurrent, startPrevious, endPrevious } = getDates(period);
         
         const [current, previous] = await Promise.all([
@@ -150,7 +150,7 @@ class DashboardService {
             this.getSalesDataForPeriod(sellerId, startPrevious, endPrevious)
         ]);
 
-        const chageRate: ChangeRate = {
+        const chageRate: DashboardTypes.ChangeRate = {
             totalOrders: previous.totalOrders === 0 ? (current.totalOrders > 0 ? 100 : 0) : parseFloat((((current.totalOrders - previous.totalOrders) / previous.totalOrders) * 100).toFixed(2)),
             totalSales: previous.totalSales === 0 ? (current.totalSales > 0 ? 100 : 0) : parseFloat((((current.totalSales - previous.totalSales) / previous.totalSales) * 100).toFixed(2)),
         };
