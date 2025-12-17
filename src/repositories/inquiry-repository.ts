@@ -300,3 +300,19 @@ export const updateInquiryReply = async (
 
   return updatedInquiryReply;
 };
+
+/**
+ * replyId로 답변 조회
+ * @param replyId string
+ */
+export const fetchInquiryReplyById = async (replyId: string) => {
+  const reply = await prisma.inquiryReply.findUnique({
+    where: { id: replyId },
+  });
+
+  if (!reply) {
+    throw new HttpError('답변이 존재하지 않습니다.', 404);
+  }
+
+  return reply;
+};

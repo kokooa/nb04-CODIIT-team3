@@ -146,7 +146,20 @@ export const deleteInquiry = async (
 export const createInquiryReply = async (
   body: CreateInquiryReplyParamsDto,
 ): Promise<CreateInquiryReplyResponseDto> => {
-  // const { inquiryId, content } = body;
+  // 문의 존재 여부 확인
+  const inquiry = await inquiryRepository.fetchInquiryDetailById(
+    body.inquiryId,
+  );
+
+  // 권한 확인: 해당 상품의 판매자인지 확인
+  if (inquiry.product.store.sellerId !== body.userId) {
+    throw new HttpError('해당 문의에 대한 답변 권한이 없습니다.', 403);
+  }
+
+  // 이미 답변이 있는지 확인
+  if (inquiry.reply) {
+    throw new HttpError('이미 답변이 완료된 문의입니다.', 409);
+  }
 
   // 문의 답변 생성
   const createdInquiryReply = await inquiryRepository.createInquiryReply(body);
@@ -175,6 +188,14 @@ export const createInquiryReply = async (
 export const updateInquiryReply = async (
   params: UpdateInquiryReplyParamsDto,
 ): Promise<UpdateInquiryReplyResponseDto> => {
+  // 답변 존재 여부 확인
+  const reply = await inquiryRepository.fetchInquiryReplyById(params.replyId);
+
+  // 권한 확인: 본인의 답변인지 확인
+  if (reply.sellerId !== params.userId) {
+    throw new HttpError('본인의 답변만 수정할 수 있습니다.', 403);
+  }
+
   const updatedInquiryReply =
     await inquiryRepository.updateInquiryReply(params);
 

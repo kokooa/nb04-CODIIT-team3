@@ -142,6 +142,7 @@ export interface CreateInquiryReplyResponseDto {
 /* ------------------------------------------------------- */
 
 export interface UpdateInquiryReplyParamsDto {
+  userId: string;
   replyId: string;
   content: string;
 }
