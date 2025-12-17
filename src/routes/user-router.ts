@@ -17,4 +17,5 @@ router.get('/me', authMiddleware, getUser);
 router.get('/me/point', getMyPointInfo);
 router.patch('/me', authMiddleware, upload.none(), updateUser);
 router.delete('/delete', authMiddleware, unregister);
+
 export default router;

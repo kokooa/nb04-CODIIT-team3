@@ -177,7 +177,7 @@ export const getUserPointService = async (
 
   // 안전장치
   if (!currentPolicy) {
-    throw new Error('매칭되는 등급 정책이 없습니다.');
+    throw new HttpError('매칭되는 등급 정책이 없습니다.', 404);
   }
 
   const nextPolicy = GRADE_POLICIES[currentPolicyIndex + 1];
