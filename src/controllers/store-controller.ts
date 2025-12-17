@@ -3,17 +3,10 @@ import express from 'express';
 type Request = express.Request;
 type Response = express.Response;
 type NextFunction = express.NextFunction;
-import { StoreService } from '../services/store-service';
+import { StoreService } from '../services/store-service.js';
 import { UserRole } from '@prisma/client';
 
-// Multer에서 오는 file 속성을 포함하도록 Request 인터페이스 확장
-declare global {
-  namespace Express {
-    interface Request {
-      file?: Express.Multer.File;
-    }
-  }
-}
+
 
 const storeService = new StoreService();
 
@@ -38,8 +31,8 @@ export class StoreController {
         name,
         address,
         phoneNumber,
-        storeImageUrl,
-        description,
+        storeImageUrl: storeImageUrl === undefined ? null : storeImageUrl,
+        description: description === undefined ? null : description,
       });
 
       res.status(201).json({ message: '스토어가 성공적으로 생성되었습니다.', store: newStore });
@@ -116,8 +109,8 @@ export class StoreController {
         name,
         address,
         phoneNumber,
-        storeImageUrl,
-        description,
+        storeImageUrl: storeImageUrl === undefined ? null : storeImageUrl,
+        description: description === undefined ? null : description,
       });
 
       res.status(200).json({ message: '스토어 정보가 성공적으로 수정되었습니다.', store: updatedStore });

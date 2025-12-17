@@ -4,3 +4,5 @@ node_modules
 
 /generated/prisma
 /front
+/dist
+/project-codiit-fe-main

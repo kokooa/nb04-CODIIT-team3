@@ -7,16 +7,16 @@ interface StoreCreationData {
   name: string;
   address: string;
   phoneNumber: string;
-  storeImageUrl?: string;
-  description?: string;
+  storeImageUrl?: string | null;
+  description?: string | null;
 }
 
 interface StoreUpdateData {
   name?: string;
   address?: string;
   phoneNumber?: string;
-  storeImageUrl?: string;
-  description?: string;
+  storeImageUrl?: string | null;
+  description?: string | null;
 }
 
 export class StoreService {
@@ -34,8 +34,8 @@ export class StoreService {
         name: data.name,
         address: data.address,
         phoneNumber: data.phoneNumber,
-        storeImageUrl: data.storeImageUrl,
-        description: data.description,
+        storeImageUrl: data.storeImageUrl === undefined ? null : data.storeImageUrl,
+        description: data.description === undefined ? null : data.description,
       },
     });
   }
@@ -69,9 +69,18 @@ export class StoreService {
    * @returns 업데이트된 스토어 객체
    */
   async updateStore(storeId: number, data: StoreUpdateData) {
+    const updateData: any = { ...data };
+
+    if ('storeImageUrl' in updateData && updateData.storeImageUrl === undefined) {
+      updateData.storeImageUrl = null;
+    }
+    if ('description' in updateData && updateData.description === undefined) {
+      updateData.description = null;
+    }
+
     return prisma.store.update({
       where: { id: storeId },
-      data: data,
+      data: updateData,
     });
   }
 

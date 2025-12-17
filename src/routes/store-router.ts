@@ -1,7 +1,7 @@
 // src/routes/store-router.ts
-import { Router } from 'express';
-import { StoreController } from '../controllers/store-controller';
-import { authenticate, authorize, checkExistingStore, isStoreOwner } from '../common/middlewares';
+import { Router, type Request } from 'express';
+import { StoreController } from '../controllers/store-controller.js';
+import { authenticate, authorize, checkExistingStore, isStoreOwner } from '../common/middlewares.js';
 import { UserRole } from '@prisma/client';
 import multer from 'multer';
 import path from 'path';
@@ -10,12 +10,12 @@ const storeRouter = Router();
 const storeController = new StoreController();
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + uniqueSuffix + uniqueSuffix + path.extname(file.originalname));
   }
 });
 

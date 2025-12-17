@@ -4,13 +4,13 @@ type Response = express.Response;
 type NextFunction = express.NextFunction;
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { authRouter } from './routes/auth-router';
-import { userRouter } from './routes/user-router';
-import { storeRouter } from './routes/store-router';
-import { productRouter } from './routes/product-router';
-import { orderRouter } from './routes/order-router';
-import { commRouter } from './routes/comm-router';
-import { dashboardRouter } from './routes/dashboard-router';
+import { authRouter } from './routes/auth-router.js';
+import { userRouter } from './routes/user-router.js';
+import { storeRouter } from './routes/store-router.js';
+import { productRouter } from './routes/product-router.js';
+import { orderRouter } from './routes/order-router.js';
+import { commRouter } from './routes/comm-router.js';
+import { dashboardRouter } from './routes/dashboard-router.js';
 
 dotenv.config();
 

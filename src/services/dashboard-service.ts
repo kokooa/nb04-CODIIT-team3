@@ -4,34 +4,49 @@ import * as DashboardTypes from '../types/dashboard.js';
 const prisma = new PrismaClient();
 
 const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
-    const now = new Date();
+    const today = new Date();
     let startCurrent: Date, endCurrent: Date, startPrevious: Date, endPrevious: Date;
 
     switch (period) {
         case 'today':
-            startCurrent = new Date(now.setHours(0, 0, 0, 0));
-            endCurrent = new Date(now.setHours(23, 59, 59, 999));
-            startPrevious = new Date(new Date().setDate(startCurrent.getDate() - 1));
-            endPrevious = new Date(new Date().setDate(endCurrent.getDate() - 1));
+            startCurrent = new Date(today);
+            startCurrent.setHours(0, 0, 0, 0);
+            endCurrent = new Date(today);
+            endCurrent.setHours(23, 59, 59, 999);
+
+            startPrevious = new Date(startCurrent);
+            startPrevious.setDate(startCurrent.getDate() - 1);
+            endPrevious = new Date(endCurrent);
+            endPrevious.setDate(endCurrent.getDate() - 1);
             break;
         case 'week':
-            const firstDayOfWeek = now.getDate() - now.getDay();
-            startCurrent = new Date(new Date(now.setDate(firstDayOfWeek)).setHours(0, 0, 0, 0));
-            endCurrent = new Date(new Date(now.setDate(startCurrent.getDate() + 6)).setHours(23, 59, 59, 999));
-            startPrevious = new Date(new Date().setDate(startCurrent.getDate() - 7));
-            endPrevious = new Date(new Date().setDate(endCurrent.getDate() - 7));
+            const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+            const diffToMonday = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to get to Monday
+
+            startCurrent = new Date(today.getFullYear(), today.getMonth(), diffToMonday);
+            startCurrent.setHours(0, 0, 0, 0);
+
+            endCurrent = new Date(today.getFullYear(), today.getMonth(), diffToMonday + 6);
+            endCurrent.setHours(23, 59, 59, 999);
+
+            startPrevious = new Date(startCurrent);
+            startPrevious.setDate(startCurrent.getDate() - 7);
+            endPrevious = new Date(endCurrent);
+            endPrevious.setDate(endCurrent.getDate() - 7);
             break;
         case 'month':
-            startCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
-            endCurrent = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-            startPrevious = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            endPrevious = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+            startCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
+            endCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+
+            startPrevious = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            endPrevious = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
             break;
         case 'year':
-            startCurrent = new Date(now.getFullYear(), 0, 1);
-            endCurrent = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-            startPrevious = new Date(now.getFullYear() - 1, 0, 1);
-            endPrevious = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
+            startCurrent = new Date(today.getFullYear(), 0, 1);
+            endCurrent = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
+
+            startPrevious = new Date(today.getFullYear() - 1, 0, 1);
+            endPrevious = new Date(today.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
             break;
     }
     return { startCurrent, endCurrent, startPrevious, endPrevious };
@@ -82,7 +97,11 @@ class DashboardService {
       const productsMap = new Map(products.map(p => [p.id, p]));
 
       const topSales: DashboardTypes.TopSale[] = topProductsData.map(item => {
-          const product = productsMap.get(item.productId)!;
+          const product = productsMap.get(item.productId);
+          if (!product) { // Add this check
+              console.warn(`Product with ID ${item.productId} not found for top sales data.`);
+              return null; // Skip this item or handle as needed
+          }
           return {
               totalOrders: item._sum.quantity || 0,
               prodcuts: {
@@ -91,7 +110,7 @@ class DashboardService {
                   price: product.price,
               },
           };
-      });
+      }).filter(Boolean) as DashboardTypes.TopSale[]; // Filter out nulls
       return topSales;
   }
 
@@ -174,10 +193,10 @@ class DashboardService {
     const periodDataObject = Object.fromEntries(periodResults);
 
     return {
-        today: periodDataObject.today,
-        week: periodDataObject.week,
-        month: periodDataObject.month,
-        year: periodDataObject.year,
+        today: periodDataObject.today!,
+        week: periodDataObject.week!,
+        month: periodDataObject.month!,
+        year: periodDataObject.year!,
         topSales,
         priceRange,
     };

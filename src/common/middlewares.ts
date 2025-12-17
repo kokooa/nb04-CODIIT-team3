@@ -34,10 +34,18 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   }
 
   const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: '인증 토큰 형식이 올바르지 않습니다.' });
+  }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; role: UserRole };
-    req.user = { id: decoded.id, role: decoded.role };
-    next();
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (typeof decoded === 'object' && decoded !== null && 'id' in decoded && 'role' in decoded) {
+      req.user = { id: decoded.id as number, role: decoded.role as UserRole };
+      next();
+    } else {
+      return res.status(401).json({ message: '유효하지 않은 인증 토큰입니다.' });
+    }
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ message: '인증 토큰이 만료되었습니다.' });
