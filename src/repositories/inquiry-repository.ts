@@ -1,4 +1,4 @@
-import type { $Enums } from '@prisma/client';
+import { Prisma, type $Enums } from '@prisma/client';
 import { HttpError } from '../common/http-error.js';
 import prisma from '../common/prisma.js';
 import type {
@@ -10,6 +10,32 @@ import type {
   CreateInquiryReplyParamsDto,
   UpdateInquiryReplyParamsDto,
 } from '../dtos/inquiry.dto.js';
+
+/**
+ * User 역할과 상태에 따른 Prisma Where 절 생성 헬퍼 함수
+ */
+const getInquiryWhereClause = (
+  userId: string,
+  userRole: $Enums.UserRole,
+  status?: InquiryStatus,
+): Prisma.InquiryWhereInput => {
+  const whereClause: Prisma.InquiryWhereInput =
+    userRole === 'BUYER'
+      ? { userId } // BUYER인 경우 자신의 문의만 조회
+      : {
+          product: {
+            store: {
+              sellerId: userId,
+            },
+          },
+        }; // SELLER인 경우 판매자의 상품에 대한 문의 조회
+
+  if (status) {
+    whereClause.status = status;
+  }
+
+  return whereClause;
+};
 
 /**
  * 전달받은 User의 역할 반환
@@ -27,7 +53,7 @@ export const getUserRole = async (userId: string): Promise<$Enums.UserRole> => {
   });
 
   if (!user) {
-    throw new Error('사용자를 찾을 수 없습니다.');
+    throw new HttpError('사용자를 찾을 수 없습니다.', 404);
   }
 
   return user.role;
@@ -43,21 +69,7 @@ export const fetchInquiries = async (
 ): Promise<InquiryItemDto[]> => {
   const { page, pageSize, status, userId, userRole } = params;
 
-  const whereClause: any =
-    userRole === 'BUYER'
-      ? { userId } // BUYER인 경우 자신의 문의만 조회
-      : // SELLER인 경우 판매자의 상품에 대한 문의 조회
-        {
-          product: {
-            store: {
-              sellerId: userId,
-            },
-          },
-        };
-
-  if (status) {
-    whereClause.status = status;
-  }
+  const whereClause = getInquiryWhereClause(userId, userRole, status);
 
   const inquiries = await prisma.inquiry.findMany({
     where: whereClause,
@@ -110,17 +122,7 @@ export const countTotalInquiries = async (
   userId: string,
   userRole: $Enums.UserRole,
 ) => {
-  const whereClause: any =
-    userRole === 'BUYER'
-      ? { userId } // BUYER인 경우 자신의 문의만 조회
-      : // SELLER인 경우 판매자의 상품에 대한 문의 조회
-        {
-          product: {
-            store: {
-              sellerId: userId,
-            },
-          },
-        };
+  const whereClause = getInquiryWhereClause(userId, userRole);
 
   const count = await prisma.inquiry.count({
     where: whereClause,

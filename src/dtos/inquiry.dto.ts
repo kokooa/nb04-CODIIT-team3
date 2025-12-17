@@ -48,7 +48,7 @@ export interface FetchInquiriesParamsDto {
   pageSize: number;
   status?: InquiryStatus;
   userId: string;
-  userRole?: 'BUYER' | 'SELLER';
+  userRole: 'BUYER' | 'SELLER';
 }
 
 /* ------------------------------------------------------- */

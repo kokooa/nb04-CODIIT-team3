@@ -23,7 +23,7 @@ import * as inquiryRepository from '../repositories/inquiry-repository.js';
  * @returns
  */
 export const getInquiries = async (
-  params: FetchInquiriesParamsDto,
+  params: Omit<FetchInquiriesParamsDto, 'userRole'>,
 ): Promise<InquiryListResponseDto> => {
   // const { page, pageSize, status, userId } = params;
 
@@ -93,7 +93,9 @@ export const updateInquiry = async (
   body: UpdateInquiryParamsDto,
 ): Promise<UpdateInquiryResponseDto> => {
   // 문의 존재 여부 및 답변 여부 확인
-  const inquiry = await inquiryRepository.fetchInquiryDetailById(body.inquiryId);
+  const inquiry = await inquiryRepository.fetchInquiryDetailById(
+    body.inquiryId,
+  );
 
   // 권한 확인
   if (inquiry.userId !== body.userId) {
@@ -120,7 +122,9 @@ export const deleteInquiry = async (
   params: DeleteInquiryParamsDto,
 ): Promise<DeleteInquiryResponseDto> => {
   // 문의 존재 여부 확인
-  const inquiry = await inquiryRepository.fetchInquiryDetailById(params.inquiryId);
+  const inquiry = await inquiryRepository.fetchInquiryDetailById(
+    params.inquiryId,
+  );
 
   // 권한 확인
   if (inquiry.userId !== params.userId) {
