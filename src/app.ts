@@ -5,6 +5,10 @@ import authRouter from './routes/auth-router.js';
 import cookieParser from 'cookie-parser';
 import metadataRouter from './routes/metada-router.js';
 import notificationRouter from './routes/notification.router.js';
+import inquiryRoutes from './routes/inquiry-router.js';
+import reviewRoutes from './routes/review-router.js';
+import { errorHandler } from './common/error-handler.js';
+import prisma from './common/prisma.js';
 
 const app = express();
 
@@ -18,13 +22,25 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// 미들웨어 설정
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
 app.use('/metadata', metadataRouter);
 app.use('/notifications', notificationRouter);
+app.use('/inquiries', inquiryRoutes);
+app.use('/review', reviewRoutes);
+
+// 에러 핸들러
+app.use(errorHandler);
 
 const PORT: number = Number(process.env.PORT) || 4000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`서버 실행 중: http://localhost:${PORT}`);
 });
+
+// 명시적 DB 연결
+await prisma.$connect();
+console.log('데이터베이스에 성공적으로 연결됨.');
+
+export default app;
