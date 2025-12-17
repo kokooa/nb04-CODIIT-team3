@@ -83,6 +83,7 @@ export interface FetchInquiryDetailParamsDto {
 /* ------------------------------------------------------- */
 
 export interface UpdateInquiryParamsDto {
+  userId: string;
   inquiryId: string;
   title: string;
   content: string;
@@ -104,6 +105,7 @@ export interface UpdateInquiryResponseDto {
 /* ------------------------------------------------------- */
 
 export interface DeleteInquiryParamsDto {
+  userId: string;
   inquiryId: string;
 }
 
