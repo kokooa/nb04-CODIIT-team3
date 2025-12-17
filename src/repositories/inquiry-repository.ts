@@ -239,15 +239,25 @@ export const deleteInquiry = async (params: DeleteInquiryParamsDto) => {
  * @param body CreateInquiryReplyParamsDto
  */
 export const createInquiryReply = async (body: CreateInquiryReplyParamsDto) => {
-  const createdInquiry = await prisma.inquiryReply.create({
-    data: {
-      inquiryId: body.inquiryId,
-      sellerId: body.userId,
-      content: body.content,
-    },
+  const createdInquiryReply = await prisma.$transaction(async tx => {
+    const reply = await tx.inquiryReply.create({
+      data: {
+        inquiryId: body.inquiryId,
+        sellerId: body.userId,
+        content: body.content,
+      },
+    });
+
+    // 답변 등록 시 문의 상태를 'CompletedAnswer'(답변 완료)로 업데이트
+    await tx.inquiry.update({
+      where: { id: body.inquiryId },
+      data: { status: 'CompletedAnswer' },
+    });
+
+    return reply;
   });
 
-  return createdInquiry;
+  return createdInquiryReply;
 };
 
 /**
