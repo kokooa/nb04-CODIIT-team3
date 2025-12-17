@@ -97,16 +97,16 @@ export const getInquiryDetail = async (
 export const updateInquiry = async (
   body: UpdateInquiryParamsDto,
 ): Promise<UpdateInquiryResponseDto> => {
-  // const { title, content, isSecret } = body;
-
-  const updatedInquiry = await inquiryRepository.updateInquiry(body);
-
-  const { status, reply, ...rest } = updatedInquiry;
+  // 문의 존재 여부 및 답변 여부 확인
+  const inquiry = await inquiryRepository.fetchInquiryDetailById(body.inquiryId);
 
   // 이미 답변이 달린 문의면 수정 불가
-  if (reply) {
+  if (inquiry.reply) {
     throw new HttpError('이미 답변이 달린 문의입니다.', 400);
   }
+
+  const updatedInquiry = await inquiryRepository.updateInquiry(body);
+  const { status, reply, ...rest } = updatedInquiry;
 
   return { status: status as InquiryStatus, ...rest };
 };
