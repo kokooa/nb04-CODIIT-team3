@@ -44,7 +44,7 @@ export const getInquiries = async (
     }
 
     // DTO 생성
-    const params: FetchInquiriesParamsDto = {
+    const params: Omit<FetchInquiriesParamsDto, 'userRole'> = {
       page: parseInt(page || '1', 10) || 1,
       pageSize: parseInt(pageSize || '10', 10) || 10,
       userId,
