@@ -31,19 +31,14 @@ export const getInquiries = async (
   const userRole = await inquiryRepository.getUserRole(params.userId);
 
   // params에 userRole 추가
-  params.userRole = userRole;
-  /* params = {
-    ...params,
-    userRole,
-  }; */
+  const fetchParams = { ...params, userRole };
 
   // 문의 목록 받아오기
-  const inquiryItems: InquiryItemDto[] =
-    await inquiryRepository.fetchInquiries(params);
+  const inquiryItems = await inquiryRepository.fetchInquiries(fetchParams);
 
   const totalCount = await inquiryRepository.countTotalInquiries(
     params.userId,
-    params.userRole,
+    userRole,
   );
 
   return {
