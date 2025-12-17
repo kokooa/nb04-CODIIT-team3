@@ -48,7 +48,7 @@ export const getUserRole = async (userId: string): Promise<$Enums.UserRole> => {
       id: userId,
     },
     select: {
-      role: true,
+      type: true,
     },
   });
 
@@ -56,7 +56,7 @@ export const getUserRole = async (userId: string): Promise<$Enums.UserRole> => {
     throw new HttpError('사용자를 찾을 수 없습니다.', 404);
   }
 
-  return user.role;
+  return user.type;
 };
 
 /**
