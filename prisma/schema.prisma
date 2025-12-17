@@ -21,13 +21,13 @@ enum UserRole {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  email           String    @unique 
-  password        String    
-  name            String    @unique
-  type            UserRole  @default(BUYER) 
-  image           String?    
-  refreshToken    String?
+  id              String       @id @default(cuid())
+  name            String
+  email           String    @unique // 로그인 ID (이메일)
+  password        String    // 해시된 비밀번호
+  nickname        String    @unique
+  role            UserRole  @default(BUYER)
+  profileImageUrl String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -229,20 +229,19 @@ model Review {
 
 // 사용자 등급 정의
 enum UserGrade {
-  Green // 신규 회원
-  Orange // 100,000원 이상 구매
-  Red // 300,000원 이상 구매
-  Black // 500,000원 이상 구매
-  VIP // 1,000,000원 이상 구매
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
 }
 
 model UserPoint {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @unique
-  points          Int       @default(0) // 💡 필드 이름을 'points'로 통일했습니다. 
-  accumulatedAmount Int     @default(0) 
-  grade           UserGrade @default(Green) 
-  pointRate       Float     @default(0.01) 
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  currentPoints   Int       @default(0) // 현재 보유 포인트
+  accumulatedAmount Int     @default(0) // 누적 구매 금액 (등급 산정 기준)
+  grade           UserGrade @default(BRONZE)
+  pointRate       Float     @default(0.01) // 등급별 적립률 (예: 1% = 0.01)
 
   // 관계 설정
   user            User      @relation(fields: [userId], references: [id])
