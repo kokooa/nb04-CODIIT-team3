@@ -7,12 +7,14 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}..`);
 });
 
 // Graceful shutdown
-const gracefulShutdown = async (server: http.Server) => {
+const gracefulShutdown = () => {
+  console.log('Gracefully shutting down...');
+
   server.close(async () => {
     console.log('Closed out remaining connections.');
 
