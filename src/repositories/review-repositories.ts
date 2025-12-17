@@ -78,3 +78,28 @@ export const createReview = async (params: CreateReviewParamsDto) => {
 
   return createdReview;
 };
+
+/**
+ * 주문 상품 정보 조회 (구매 여부 확인용)
+ * @param orderItemId string
+ */
+export const fetchOrderItem = async (orderItemId: string) => {
+  const orderItem = await prisma.orderItem.findUnique({
+    where: { id: orderItemId },
+    include: { order: true },
+  });
+
+  return orderItem;
+};
+
+/**
+ * 이미 작성된 리뷰가 있는지 확인
+ * @param orderItemId string
+ */
+export const checkReviewExists = async (orderItemId: string) => {
+  const review = await prisma.review.findFirst({
+    where: { orderItemId },
+  });
+
+  return !!review;
+};
