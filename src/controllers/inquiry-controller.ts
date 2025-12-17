@@ -7,6 +7,7 @@ import type {
   UpdateInquiryParamsDto,
   CreateInquiryReplyParamsDto,
   UpdateInquiryReplyParamsDto,
+  DeleteInquiryParamsDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/http-error.js';
@@ -121,7 +122,14 @@ export const updateInquiry = async (
     return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
   }
 
+  // User 정보 받아오기 및 유효성 검증
+  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
+
   body.inquiryId = inquiryId;
+  body.userId = userId;
 
   try {
     const result = await inquiryService.updateInquiry(body);
@@ -148,7 +156,14 @@ export const deleteInquiry = async (
     return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
   }
 
-  const params = {
+  // User 정보 받아오기 및 유효성 검증
+  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
+
+  const params: DeleteInquiryParamsDto = {
+    userId,
     inquiryId,
   };
 

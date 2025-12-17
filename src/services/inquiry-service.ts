@@ -100,6 +100,11 @@ export const updateInquiry = async (
   // 문의 존재 여부 및 답변 여부 확인
   const inquiry = await inquiryRepository.fetchInquiryDetailById(body.inquiryId);
 
+  // 권한 확인
+  if (inquiry.userId !== body.userId) {
+    throw new HttpError('본인의 문의만 수정할 수 있습니다.', 403);
+  }
+
   // 이미 답변이 달린 문의면 수정 불가
   if (inquiry.reply) {
     throw new HttpError('이미 답변이 달린 문의입니다.', 400);
@@ -119,6 +124,14 @@ export const updateInquiry = async (
 export const deleteInquiry = async (
   params: DeleteInquiryParamsDto,
 ): Promise<DeleteInquiryResponseDto> => {
+  // 문의 존재 여부 확인
+  const inquiry = await inquiryRepository.fetchInquiryDetailById(params.inquiryId);
+
+  // 권한 확인
+  if (inquiry.userId !== params.userId) {
+    throw new HttpError('본인의 문의만 삭제할 수 있습니다.', 403);
+  }
+
   const deletedInquiry = await inquiryRepository.deleteInquiry(params);
 
   const { status, ...rest } = deletedInquiry;
