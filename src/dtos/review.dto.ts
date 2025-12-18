@@ -36,6 +36,28 @@ export interface UpdateReviewParamsDto {
 
 /* ------------------------------------------------------- */
 
+export type DeleteReviewResponseDto = [
+  {
+    id: string;
+    userId: string;
+    productId: string;
+    content: string;
+    rating: number;
+    createdAt: Date;
+    updatedAt: Date;
+    orderItemId: string;
+  },
+  {
+    id: string;
+    orderId: string;
+    productId: string;
+    size: string;
+    price: number;
+    quantity: number;
+    isReviewed: boolean;
+  },
+];
+
 export interface DeleteReviewParamsDto {
   reviewId: string;
   userId: string;
