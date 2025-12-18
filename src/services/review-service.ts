@@ -5,6 +5,7 @@ import type {
   UpdateReviewParamsDto,
   UpdateReviewResponseDto,
   DeleteReviewParamsDto,
+  DeleteReviewResponseDto,
   GetReviewsParamsDto,
   GetReviewsResponseDto,
   CreateReviewParamsDto,
@@ -52,7 +53,7 @@ export const updateReview = async (
 
 export const deleteReview = async (
   params: DeleteReviewParamsDto,
-): Promise<boolean> => {
+): Promise<DeleteReviewResponseDto> => {
   // 삭제하려는 리뷰가 본인이 작성한 것인지 검증
   const review = await reviewRepository.fetchReviewDetailById(params.reviewId);
 
@@ -73,11 +74,25 @@ export const deleteReview = async (
     throw new HttpError('요청한 리소스를 찾을 수 없습니다.', 404);
   }
 
-  if (deletedReview.userId !== params.userId) {
-    throw new HttpError('권한이 없습니다.', 403);
+  const orderItem = await reviewRepository.fetchOrderItem(
+    deletedReview.orderItemId,
+  );
+
+  if (!orderItem) {
+    throw new HttpError('연결된 주문 상품을 찾을 수 없습니다.', 404);
   }
 
-  return deletedReview ? true : false;
+  const orderItemResponse = {
+    id: orderItem.id,
+    orderId: orderItem.orderId,
+    productId: orderItem.productId,
+    size: orderItem.size,
+    price: orderItem.price,
+    quantity: orderItem.quantity,
+    isReviewed: false, // TODO
+  };
+
+  return [deletedReview, orderItemResponse];
 };
 
 export const getReviews = async (
