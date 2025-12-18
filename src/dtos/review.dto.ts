@@ -51,13 +51,26 @@ export interface GetReviewsParamsDto {
 }
 
 export type GetReviewsResponseDto = {
-  id: string;
-  userId: string;
-  productId: string;
-  rating: number;
-  content: string;
-  createdAt: Date;
-}[];
+  items: {
+    id: string;
+    userId: string;
+    productId: string;
+    content: string;
+    rating: number;
+    createdAt: Date;
+    updatedAt: Date;
+    orderItemId: string;
+    user: {
+      name: string;
+    };
+  }[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    hasNextPage: boolean;
+  };
+};
 
 /* ------------------------------------------------------- */
 
