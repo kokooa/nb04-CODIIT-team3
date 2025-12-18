@@ -54,9 +54,7 @@ export const deleteReview = async (
   params: DeleteReviewParamsDto,
 ): Promise<boolean> => {
   // 삭제하려는 리뷰가 본인이 작성한 것인지 검증
-  const review = await reviewRepository.fetchReviewDetailById(
-    params.reviewId,
-  );
+  const review = await reviewRepository.fetchReviewDetailById(params.reviewId);
 
   if (!review) {
     throw new HttpError('요청한 리소스를 찾을 수 없습니다.', 404);
@@ -85,9 +83,26 @@ export const deleteReview = async (
 export const getReviews = async (
   params: GetReviewsParamsDto,
 ): Promise<GetReviewsResponseDto> => {
-  const { userId } = params;
+  const { page, limit } = params;
 
-  const reviews = reviewRepository.fetchReviewsByProductId(params);
+  const items = await reviewRepository.fetchReviewsByProductId(params);
+  const total = await reviewRepository.fetchTotalReviewsByProductId(
+    params.productId,
+  );
+
+  const hasNextPage = total > page * limit;
+
+  const meta = {
+    total,
+    page,
+    limit,
+    hasNextPage,
+  };
+
+  const reviews: GetReviewsResponseDto = {
+    items,
+    meta,
+  };
 
   return reviews;
 };
@@ -107,11 +122,16 @@ export const createReview = async (
     throw new HttpError('해당 상품에 대한 주문 내역이 아닙니다.', 400);
   }
   if (orderItem.order.userId !== userId) {
-    throw new HttpError('본인의 주문 내역에 대해서만 리뷰를 작성할 수 있습니다.', 403);
+    throw new HttpError(
+      '본인의 주문 내역에 대해서만 리뷰를 작성할 수 있습니다.',
+      403,
+    );
   }
 
   // 중복 리뷰 검사
-  const reviewExists = await reviewRepository.checkReviewExists(data.orderItemId);
+  const reviewExists = await reviewRepository.checkReviewExists(
+    data.orderItemId,
+  );
   if (reviewExists) {
     throw new HttpError('이미 해당 주문 내역에 대한 리뷰를 작성했습니다.', 409);
   }

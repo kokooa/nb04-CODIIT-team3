@@ -55,6 +55,21 @@ export const fetchReviewsByProductId = async (params: GetReviewsParamsDto) => {
     where: {
       productId,
     },
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      content: true,
+      rating: true,
+      createdAt: true,
+      updatedAt: true,
+      orderItemId: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
     skip,
     take: limit,
     orderBy: {
@@ -63,6 +78,16 @@ export const fetchReviewsByProductId = async (params: GetReviewsParamsDto) => {
   });
 
   return reviews;
+};
+
+export const fetchTotalReviewsByProductId = async (productId: string) => {
+  const total = await prisma.review.count({
+    where: {
+      productId,
+    },
+  });
+
+  return total;
 };
 
 export const createReview = async (params: CreateReviewParamsDto) => {
