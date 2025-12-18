@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { loginService, reloadService } from '../services/auth-service.js';
-import { HttpError } from '../../utils/error-handler.js';
-import { mapUserToClientResponse } from '../../utils/user-mapper.js';
+import { HttpError } from '../utils/error-handler.js';
+import { mapUserToClientResponse } from '../utils/user-mapper.js';
 
 // 로그인 및 Access/Refresh 토큰 발급
 export async function login(req: Request, res: Response, next: NextFunction) {
