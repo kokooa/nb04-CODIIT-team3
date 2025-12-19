@@ -213,7 +213,20 @@ export const updateInquiry = async (body: UpdateInquiryParamsDto) => {
       isSecret: true,
       createdAt: true,
       updatedAt: true,
-      reply: true,
+      reply: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          seller: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -230,6 +243,31 @@ export const deleteInquiry = async (params: DeleteInquiryParamsDto) => {
   const deletedInquiry = await prisma.inquiry.delete({
     where: {
       id: inquiryId,
+    },
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      title: true,
+      content: true,
+      status: true,
+      isSecret: true,
+      createdAt: true,
+      updatedAt: true,
+      reply: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          seller: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
 
