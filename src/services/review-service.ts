@@ -1,11 +1,10 @@
 import { HttpError } from '../common/http-error.js';
 import type {
-  ReviewDetailParamsDto,
+  /* ReviewDetailParamsDto,
   ReviewDetailResponseDto,
   UpdateReviewParamsDto,
-  UpdateReviewResponseDto,
+  UpdateReviewResponseDto, */
   DeleteReviewParamsDto,
-  DeleteReviewResponseDto,
   GetReviewsParamsDto,
   GetReviewsResponseDto,
   CreateReviewParamsDto,
@@ -13,7 +12,7 @@ import type {
 } from '../dtos/review.dto.js';
 import * as reviewRepository from '../repositories/review-repositories.js';
 
-export const getReviewDetail = async (
+/* export const getReviewDetail = async (
   params: ReviewDetailParamsDto,
 ): Promise<ReviewDetailResponseDto> => {
   const { reviewId, userId } = params;
@@ -30,9 +29,9 @@ export const getReviewDetail = async (
   }
 
   return reviewDetail;
-};
+}; */
 
-export const updateReview = async (
+/* export const updateReview = async (
   params: UpdateReviewParamsDto,
 ): Promise<UpdateReviewResponseDto> => {
   const { reviewId, userId, data } = params;
@@ -49,11 +48,11 @@ export const updateReview = async (
   }
 
   return updatedReview;
-};
+}; */
 
 export const deleteReview = async (
   params: DeleteReviewParamsDto,
-): Promise<DeleteReviewResponseDto> => {
+): Promise<boolean> => {
   // 삭제하려는 리뷰가 본인이 작성한 것인지 검증
   const review = await reviewRepository.fetchReviewDetailById(params.reviewId);
 
@@ -74,25 +73,7 @@ export const deleteReview = async (
     throw new HttpError('요청한 리소스를 찾을 수 없습니다.', 404);
   }
 
-  const orderItem = await reviewRepository.fetchOrderItem(
-    deletedReview.orderItemId,
-  );
-
-  if (!orderItem) {
-    throw new HttpError('연결된 주문 상품을 찾을 수 없습니다.', 404);
-  }
-
-  const orderItemResponse = {
-    id: orderItem.id,
-    orderId: orderItem.orderId,
-    productId: orderItem.productId,
-    size: orderItem.size,
-    price: orderItem.price,
-    quantity: orderItem.quantity,
-    isReviewed: false, // TODO
-  };
-
-  return [deletedReview, orderItemResponse];
+  return true;
 };
 
 export const getReviews = async (

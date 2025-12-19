@@ -2,12 +2,19 @@
 // DTOs for Review
 
 export interface ReviewDetailResponseDto {
-  id: string;
-  userId: string;
-  productId: string;
+  reviewId: string;
+  productName: string;
+  size: {
+    en: string;
+    ko: string;
+  };
+  price: number;
+  quantity: number;
   rating: number;
   content: string;
-  createdAt: Date;
+  reviewer: string;
+  reviewCreatedAt: Date;
+  purchasedAt: Date;
 }
 
 export interface ReviewDetailParamsDto {
@@ -21,9 +28,11 @@ export interface UpdateReviewResponseDto {
   id: string;
   userId: string;
   productId: string;
+  orderItemId: string;
   rating: number;
   content: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UpdateReviewParamsDto {
@@ -36,7 +45,7 @@ export interface UpdateReviewParamsDto {
 
 /* ------------------------------------------------------- */
 
-export type DeleteReviewResponseDto = [
+/* export type DeleteReviewResponseDto = [
   {
     id: string;
     userId: string;
@@ -56,7 +65,7 @@ export type DeleteReviewResponseDto = [
     quantity: number;
     isReviewed: boolean;
   },
-];
+]; */
 
 export interface DeleteReviewParamsDto {
   reviewId: string;
@@ -77,14 +86,11 @@ export type GetReviewsResponseDto = {
     id: string;
     userId: string;
     productId: string;
-    content: string;
+    orderItemId: string;
     rating: number;
+    content: string;
     createdAt: Date;
     updatedAt: Date;
-    orderItemId: string;
-    user: {
-      name: string;
-    };
   }[];
   meta: {
     total: number;
@@ -110,9 +116,11 @@ export interface CreateReviewResponseDto {
   id: string;
   userId: string;
   productId: string;
+  orderItemId: string;
   rating: number;
   content: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 /* ------------------------------------------------------- */
