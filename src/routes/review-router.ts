@@ -4,10 +4,10 @@ import * as reviewController from '../controllers/review-controller.js';
 const router = express.Router();
 
 // 리뷰 상세 조회 (리뷰ID)
-router.get('/:reviewId', reviewController.getReviewDetail);
+// router.get('/:reviewId', reviewController.getReviewDetail);
 
 // 리뷰 수정 (리뷰ID)
-router.patch('/:reviewId', reviewController.updateReview);
+// router.patch('/:reviewId', reviewController.updateReview);
 
 // 리뷰 삭제 (리뷰ID)
 router.delete('/:reviewId', reviewController.deleteReview);

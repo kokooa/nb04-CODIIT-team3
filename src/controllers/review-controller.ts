@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import type {
-  ReviewDetailParamsDto,
-  UpdateReviewParamsDto,
+  // ReviewDetailParamsDto,
+  // UpdateReviewParamsDto,
   DeleteReviewParamsDto,
   GetReviewsParamsDto,
   CreateReviewParamsDto,
@@ -13,7 +13,7 @@ import * as reviewService from '../services/review-service.js';
  * 리뷰 상세 조회 (리뷰ID)
  * 리뷰 ID를 사용하여 리뷰의 상세 정보를 조회합니다. 리뷰 작성자, 내용, 평점 등의 정보를 포함합니다.
  */
-export const getReviewDetail = async (
+/* export const getReviewDetail = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -44,13 +44,13 @@ export const getReviewDetail = async (
   } catch (error) {
     next(error);
   }
-};
+}; */
 
 /**
  * 리뷰 수정 (리뷰ID)
  * 리뷰 ID를 사용하여 리뷰를 수정합니다.
  */
-export const updateReview = async (
+/* export const updateReview = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -84,7 +84,7 @@ export const updateReview = async (
   } catch (error) {
     next(error);
   }
-};
+}; */
 
 /**
  * 리뷰 삭제 (리뷰ID)
@@ -120,7 +120,7 @@ export const deleteReview = async (
       return next(new HttpError('리뷰 삭제에 실패했습니다.', 500));
     }
 
-    res.status(200).end();
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
