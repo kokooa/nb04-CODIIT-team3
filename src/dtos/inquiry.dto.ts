@@ -63,7 +63,6 @@ export interface InquiryDetailResponseDto {
   isSecret: boolean;
   createdAt: Date;
   updatedAt: Date;
-  user: InquiryUserDto;
   reply?: InquiryReplyDto;
 }
 
@@ -100,6 +99,7 @@ export interface UpdateInquiryResponseDto {
   isSecret: boolean;
   createdAt: Date;
   updatedAt: Date;
+  reply?: InquiryReplyDto;
 }
 
 /* ------------------------------------------------------- */
@@ -119,6 +119,7 @@ export interface DeleteInquiryResponseDto {
   isSecret: boolean;
   createdAt: Date;
   updatedAt: Date;
+  reply?: InquiryReplyDto;
 }
 
 /* ------------------------------------------------------- */
@@ -136,7 +137,6 @@ export interface CreateInquiryReplyResponseDto {
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  user: InquiryUserDto;
 }
 
 /* ------------------------------------------------------- */
@@ -154,7 +154,6 @@ export interface UpdateInquiryReplyResponseDto {
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  user: InquiryUserDto;
 }
 
 /* ------------------------------------------------------- */
