@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// -----------------------------------------------------------
+// Prisma Generator & Datasource
+// -----------------------------------------------------------
 
 generator client {
   provider = "prisma-client-js"
@@ -13,32 +14,30 @@ datasource db {
 // 1. 유저 및 인증 (User & Auth)
 // -----------------------------------------------------------
 
-// 회원 유형 정의
 enum UserRole {
-  BUYER // 구매자
-  SELLER // 판매자
+  BUYER
+  SELLER
 }
 
 model User {
   id           String   @id @default(cuid())
   name         String   @unique
-  email        String   @unique // 로그인 ID (이메일)
-  password     String // 해시된 비밀번호
+  email        String   @unique
+  password     String
   type         UserRole @default(BUYER)
   image        String?
   refreshToken String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // 관계 설정
-  store          Store? // 판매자: 1명의 판매자는 0 또는 1개의 스토어를 가집니다.
-  inquiries      Inquiry[] // 문의
-  reviews        Review[] // 리뷰
-  cartItems      CartItem[] // 장바구니 항목
-  orders         Order[] // 주문/구매
-  userPoints     UserPoint? // 포인트 및 등급 정보
-  favoriteStores FavoriteStore[] // 관심 스토어
-  inquiryReplies InquiryReply[] // 답변 (1:1 관계)
+  store          Store?
+  inquiries      Inquiry[]
+  reviews        Review[]
+  cartItems      CartItem[]
+  orders         Order[]
+  userPoints     UserPoint?
+  favoriteStores FavoriteStore[]
+  inquiryReplies InquiryReply[]
 }
 
 // -----------------------------------------------------------
@@ -47,7 +46,7 @@ model User {
 
 model Store {
   id            String   @id @default(cuid())
-  sellerId      String   @unique // 판매자 ID (1:1 관계)
+  sellerId      String   @unique
   name          String
   address       String
   phoneNumber   String
@@ -56,13 +55,11 @@ model Store {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // 관계 설정
   seller    User            @relation(fields: [sellerId], references: [id])
-  products  Product[] // 상품
-  favorites FavoriteStore[] // 이 스토어를 관심 스토어로 등록한 사용자 목록
+  products  Product[]
+  favorites FavoriteStore[]
 }
 
-// 상품 카테고리 정의
 enum ProductCategory {
   TOP
   BOTTOM
@@ -71,49 +68,49 @@ enum ProductCategory {
   SKIRT
   SHOES
   ACC
-  ETC // 기타
+  ETC
 }
 
 model Product {
-  id                 Int      @id @default(autoincrement())
-  name               String
-  price              Int
-  content            String?
-  image              String?
-  discountRate       Int?
-  discountStartTime  DateTime?
-  discountEndTime    DateTime?
+  id                Int       @id @default(autoincrement())
+  name              String
+  price             Int
+  content           String?
+  image             String?
+  discountRate      Int?
+  discountStartTime DateTime?
+  discountEndTime   DateTime?
 
-  categoryName       String
-  category           Category? @relation(fields: [categoryName], references: [name])
+  categoryName String
+  category     Category? @relation(fields: [categoryName], references: [name])
 
-  isSoldOut          Boolean   @default(false)
+  isSoldOut Boolean @default(false)
 
-  storeId            Int       
-  store              Store     @relation(fields: [storeId], references: [id])
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
 
-  stocks             Stock[]
-  inquiries          Inquiry[]
-  reviews            Review[]
-  cartItems          CartItem[]
-  orderItems         OrderItem[]
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  stocks     Stock[]
+  inquiries  Inquiry[]
+  reviews    Review[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Stock {
-  id        Int      @id @default(autoincrement())
-  size      String
-  quantity  Int
+  id       Int    @id @default(autoincrement())
+  size     String
+  quantity Int
 
   productId Int
   product   Product @relation(fields: [productId], references: [id])
 }
 
 model Category {
-  name        String    @id
-
-  products    Product[]
+  name     String    @id
+  products Product[]
 }
 
 // -----------------------------------------------------------
@@ -123,57 +120,53 @@ model Category {
 model CartItem {
   id        String   @id @default(cuid())
   userId    String
-  productId String
+  productId Int
   quantity  Int
-  size      String // 선택된 사이즈
+  size      String
   createdAt DateTime @default(now())
 
-  // 관계 설정
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @@unique([userId, productId, size]) // 사용자, 상품, 사이즈 조합은 유일해야 함
+  @@unique([userId, productId, size])
 }
 
-// 주문 상태 정의
 enum OrderStatus {
-  PENDING // 결제 대기
-  PAID // 결제 완료
-  SHIPPED // 배송 중
-  DELIVERED // 배송 완료
-  CANCELED // 취소
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELED
 }
 
 model Order {
   id              String      @id @default(cuid())
   userId          String
   orderNumber     String      @unique
-  totalAmount     Int // 총 결제 금액
-  usedPoints      Int         @default(0) // 사용된 포인트
-  status          OrderStatus @default(PAID)
+  totalAmount     Int
+  usedPoints      Int         @default(0)
+  status          OrderStatus @default(PENDING)
   recipientName   String
   recipientPhone  String
   deliveryAddress String
-  paymentDate     DateTime? // 결제 완료 시점
+  paymentDate     DateTime?
   createdAt       DateTime    @default(now())
 
-  // 관계 설정
   user       User        @relation(fields: [userId], references: [id])
-  orderItems OrderItem[] // 주문된 상품 항목 목록
+  orderItems OrderItem[]
 }
 
 model OrderItem {
   id        String @id @default(cuid())
   orderId   String
-  productId String
+  productId Int
   quantity  Int
-  price     Int // 주문 당시 상품 가격 (할인 적용 가격)
-  size      String // 주문된 사이즈
+  price     Int
+  size      String
 
-  // 관계 설정
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
-  review  Review? // 이 주문 항목에 대해 작성된 리뷰 (1:1 또는 1:0)
+  review  Review?
 }
 
 // -----------------------------------------------------------
@@ -183,15 +176,14 @@ model OrderItem {
 model Inquiry {
   id        String   @id @default(cuid())
   title     String
-  isSecret  Boolean  @default(false) // 비밀글 여부
-  status    String   @default("WaitingAnswer") // 답변 상태: WaitingAnswer, CompletedAnswer
-  productId String
+  isSecret  Boolean  @default(false)
+  status    String   @default("WaitingAnswer")
+  productId Int
   userId    String
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // 관계 설정
   user    User          @relation(fields: [userId], references: [id])
   product Product       @relation(fields: [productId], references: [id])
   reply   InquiryReply?
@@ -200,12 +192,11 @@ model Inquiry {
 model InquiryReply {
   id        String   @id @default(cuid())
   inquiryId String   @unique
-  sellerId  String // 답변한 판매자 ID
+  sellerId  String
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // 관계 설정
   inquiry Inquiry @relation(fields: [inquiryId], references: [id])
   seller  User    @relation(fields: [sellerId], references: [id])
 }
@@ -213,14 +204,13 @@ model InquiryReply {
 model Review {
   id          String   @id @default(cuid())
   userId      String
-  productId   String
-  orderItemId String   @unique // 구매한 상품에 대해서만 작성 가능하도록 OrderItem과 1:1 연결
-  rating      Int // 별점 (1~5)
+  productId   Int
+  orderItemId String   @unique
+  rating      Int
   content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // 관계 설정
   user      User      @relation(fields: [userId], references: [id])
   product   Product   @relation(fields: [productId], references: [id])
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])
@@ -230,24 +220,22 @@ model Review {
 // 5. 포인트 및 등급 (Points & Grade)
 // -----------------------------------------------------------
 
-// 사용자 등급 정의
 enum UserGrade {
-  Green // 신규 회원
-  Orange // 100,000원 이상 구매
-  Red // 300,000원 이상 구매
-  Black // 500,000원 이상 구매
-  VIP // 1,000,000원 이상 구매
+  Green
+  Orange
+  Red
+  Black
+  VIP
 }
 
 model UserPoint {
   id                String    @id @default(cuid())
   userId            String    @unique
-  points            Int       @default(0) // 현재 보유 포인트
-  accumulatedAmount Int       @default(0) // 누적 구매 금액 (등급 산정 기준)
+  points            Int       @default(0)
+  accumulatedAmount Int       @default(0)
   grade             UserGrade @default(Green)
-  pointRate         Float     @default(0.01) // 등급별 적립률 (예: 1% = 0.01)
+  pointRate         Float     @default(0.01)
 
-  // 관계 설정
   user User @relation(fields: [userId], references: [id])
 }
 
@@ -261,9 +249,8 @@ model FavoriteStore {
   storeId   String
   createdAt DateTime @default(now())
 
-  // 관계 설정
   user  User  @relation(fields: [userId], references: [id])
   store Store @relation(fields: [storeId], references: [id])
 
-  @@unique([userId, storeId]) // 사용자별 스토어는 한 번만 등록 가능
+  @@unique([userId, storeId])
 }
