@@ -75,41 +75,45 @@ enum ProductCategory {
 }
 
 model Product {
-  id         String          @id @default(cuid())
-  storeId    String
-  name       String
-  image      String
-  price      Int // 판매가
-  category   ProductCategory
-  detailInfo String
-  totalSales Int             @default(0) // 판매량 (추천 상품 및 정렬 기준)
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id                 Int      @id @default(autoincrement())
+  name               String
+  price              Int
+  content            String?
+  image              String?
+  discountRate       Int?
+  discountStartTime  DateTime?
+  discountEndTime    DateTime?
 
-  // 할인 관련 필드 (선택 사항)
-  discountPrice Int? // 할인가
-  discountStart DateTime? // 할인 시작일
-  discountEnd   DateTime? // 할인 종료일
+  categoryName       String
+  category           Category? @relation(fields: [categoryName], references: [name])
 
-  // 관계 설정
-  store      Store          @relation(fields: [storeId], references: [id])
-  stocks     ProductStock[] // 사이즈별 재고
-  inquiries  Inquiry[] // 문의
-  reviews    Review[] // 리뷰
-  cartItems  CartItem[] // 장바구니 항목
-  orderItems OrderItem[] // 주문된 상품 항목
+  isSoldOut          Boolean   @default(false)
+
+  storeId            Int       
+  store              Store     @relation(fields: [storeId], references: [id])
+
+  stocks             Stock[]
+  inquiries          Inquiry[]
+  reviews            Review[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
-model ProductStock {
-  id        String @id @default(cuid())
-  productId String
-  size      String // 예: S, M, L, 260 등
-  quantity  Int    @default(0)
+model Stock {
+  id        Int      @id @default(autoincrement())
+  size      String
+  quantity  Int
 
-  // 관계 설정
-  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
 
-  @@unique([productId, size]) // 상품별 사이즈는 유일해야 함
+model Category {
+  name        String    @id
+
+  products    Product[]
 }
 
 // -----------------------------------------------------------
