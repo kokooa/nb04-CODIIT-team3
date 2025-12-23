@@ -1,48 +1,46 @@
 import express from 'express';
-type Request = express.Request;
-type Response = express.Response;
-type NextFunction = express.NextFunction;
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { authRouter } from './routes/auth-router.js';
-import { userRouter } from './routes/user-router.js';
-import { storeRouter } from './routes/store-router.js';
-import { productRouter } from './routes/product-router.js';
-import { orderRouter } from './routes/order-router.js';
-import { commRouter } from './routes/comm-router.js';
-import { dashboardRouter } from './routes/dashboard-router.js';
-
-dotenv.config();
+import userRouter from './routes/user-router.js';
+import authRouter from './routes/auth-router.js';
+import cookieParser from 'cookie-parser';
+import metadataRouter from './routes/metada-router.js';
+import notificationRouter from './routes/notification.router.js';
+import inquiryRoutes from './routes/inquiry-router.js';
+import reviewRoutes from './routes/review-router.js';
+import { errorHandler } from './common/error-handler.js';
+import prisma from './common/prisma.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // 프론트엔드 포트
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// API Routers
-app.use('/api/auth', authRouter);
-app.use('/api/users', userRouter);
-app.use('/api/stores', storeRouter);
-app.use('/api/products', productRouter);
-app.use('/api/orders', orderRouter);
-app.use('/api/community', commRouter); // Assuming '/api/community' for comm-router
-app.use('/api/dashboard', dashboardRouter);
+// 미들웨어 설정
+app.use('/users', userRouter);
+app.use('/auth', authRouter);
+app.use('/metadata', metadataRouter);
+app.use('/notifications', notificationRouter);
+app.use('/inquiries', inquiryRoutes);
+app.use('/review', reviewRoutes);
 
-// Default route
-app.get('/', (req: Request, res: Response) => {
-  res.send('Server is running');
+// 에러 핸들러
+app.use(errorHandler);
+
+const PORT: number = Number(process.env.PORT) || 4000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`서버 실행 중: http://localhost:${PORT}`);
 });
 
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+// 명시적 DB 연결
+await prisma.$connect();
+console.log('데이터베이스에 성공적으로 연결됨.');
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+export default app;
