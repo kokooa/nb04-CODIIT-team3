@@ -23,6 +23,8 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # 프로덕션 의존성만 설치
 COPY package*.json ./
 RUN npm install --omit=dev
