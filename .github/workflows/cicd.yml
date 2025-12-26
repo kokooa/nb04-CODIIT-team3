@@ -2,9 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: ['main', 'dev']
+    # branches: ['main', 'dev']
+    branches: ['dev']
   pull_request:
-    branches: ['main', 'dev']
+    # branches: ['main', 'dev']
+    branches: ['dev']
 
 env:
   REGISTRY: ghcr.io
@@ -47,8 +49,8 @@ jobs:
         run: docker build . -t $IMAGE_NAME --target production
 
   deploy:
-    # 'main' 브랜치에 push 이벤트가 발생했을 때 실행.
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # 'dev' 브랜치에 pull_request 이벤트가 발생했을 때 실행.
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'pull_request'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
@@ -95,3 +97,9 @@ jobs:
       #       docker run -d --name <your_container_name> -p 3000:3000 \
       #         -e DATABASE_URL=${{ secrets.DATABASE_URL }}
       #         ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+
+      #     script: |
+      #       # 운영용 .env 파일이 서버에 이미 존재한다고 가정
+      #       cd /path/to/your/project
+      #       docker-compose pull backend
+      #       docker-compose up -d --no-deps backend # 의존성(db)은 건드리지 않고 backend 서비스만 재시작
