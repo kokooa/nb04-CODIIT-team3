@@ -31,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Check formatting with Prettier
-        run: npx prettier --check .
+        run: npx prettier --write . && npx prettier --check .
 
       - name: Type check
         run: npm run typecheck
