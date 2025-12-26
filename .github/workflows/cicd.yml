@@ -2,11 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    # branches: ['main', 'dev']
-    branches: ['dev']
-  pull_request:
-    # branches: ['main', 'dev']
-    branches: ['dev']
+    branches: ['main', 'dev', 'feature/ci-cd']
+  # pull_request:
+  # branches: ['main', 'dev', 'feature/ci-cd']
 
 env:
   REGISTRY: ghcr.io
@@ -49,8 +47,8 @@ jobs:
         run: docker build . -t $IMAGE_NAME --target production
 
   deploy:
-    # 'dev' 브랜치에 pull_request 이벤트가 발생했을 때 실행.
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'pull_request'
+    # 'main' 브랜치 push, 또는 'feature/ci-cd' 브랜치의 push/pr일 때 실행
+    # if: github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'feature/ci-cd'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
