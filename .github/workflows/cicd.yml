@@ -8,7 +8,7 @@ env:
   REGISTRY: ghcr.io
   # ghcr.io/OWNER/IMAGE_NAME
   # IMAGE_NAME: ${{ github.repository }}
-  IMAGE_NAME: intwocave/nb04-codiit-team3
+  IMAGE_NAME: kokooa/nb04-codiit-team3
 
 jobs:
   build-and-test:
