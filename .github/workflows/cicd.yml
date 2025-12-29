@@ -71,10 +71,17 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
+
+          # 아키텍처를 ARM64로 설정
+          platforms: linux/amd64
+
           target: production
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -90,10 +97,10 @@ jobs:
           script: |
             # 운영용 .env 파일이 서버에 이미 존재한다고 가정
             cd /home/ec2-user/git/codeit/nb04-CODIIT-team3
-            git checkout feature/ci-cd &&git pull
+            git checkout feature/ci-cd && git pull
             pwd
             /usr/local/lib/docker/cli-plugins/docker-compose pull backend
-            /usr/local/lib/docker/cli-plugins/docker-compose up -d --no-deps backend
+            /usr/local/lib/docker/cli-plugins/docker-compose up -d
 
       # - name: Deploy to Server
       #   uses: appleboy/ssh-action@master
