@@ -80,7 +80,7 @@ jobs:
           context: .
 
           # 아키텍처를 ARM64로 설정
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
 
           target: production
           push: true
