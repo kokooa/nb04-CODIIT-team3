@@ -34,7 +34,7 @@ COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/prisma ./prisma
 
 # 테스트용
-# COPY ./.env.docker ./.env
+# COPY ./.env.prod ./.env
 
 # Prisma 클라이언트 생성
 RUN npx prisma generate

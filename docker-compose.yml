@@ -4,7 +4,7 @@ services:
     container_name: nb04-db
     restart: always
     env_file:
-      - ./.env.docker
+      - ./.env.prod
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
@@ -20,7 +20,7 @@ services:
     container_name: nb04-backend
     restart: always
     env_file:
-      - ./.env.docker
+      - ./.env.prod
     ports:
       - '3000:3000'
     depends_on:
