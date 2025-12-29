@@ -1,82 +1,173 @@
-import prisma from '../models/index.js';
-import type { Product as PrismaProduct } from '@prisma/client';
+import { ProductRepository } from "../repositories/product-repository.js";
+import type {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductQueryDto
+} from "../types/product-dto.js";
 
-class ProductService {
-  async getAllProducts(page: number, pageSize: number, sort: string) {
-    const skip = (page - 1) * pageSize;
-    let orderBy: any = {};
+export class ProductService {
+  private productRepository = new ProductRepository();
+  async createProduct(body: CreateProductDto) {
+    const {
+      name,
+      price,
+      content,
+      image,
+      discountRate,
+      discountStartTime,
+      discountEndTime,
+      categoryName,
+      storeId,
+      stocks
+    } = body;
 
-    switch (sort) {
-      case 'salesRanking':
-        orderBy = { totalSales: 'desc' };
-        break;
-      case 'newest':
-        orderBy = { createdAt: 'desc' };
-        break;
-      case 'priceAsc':
-        orderBy = { price: 'asc' };
-        break;
-      case 'priceDesc':
-        orderBy = { price: 'desc' };
-        break;
-      default:
-        orderBy = { createdAt: 'desc' }; // Default sort
+    const exists = await this.productRepository.findProductByName(name);
+    if (exists) {
+      throw {
+        statusCode: 400,
+        message: "잘못된 요청입니다." // Bad Request
+      };
     }
 
-    const products = await prisma.product.findMany({
-      skip,
-      take: pageSize,
-      orderBy,
-      include: {
-        store: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
-
-    const totalCount = await prisma.product.count();
-
-    const formattedProducts = products.map((product: PrismaProduct & { store: { id: number, name: string } }) => {
-      // Calculate discountPrice and discountRate if applicable
-      let discountPrice: number | null = null;
-      let discountRate: number | null = null;
-
-      if (product.discountPrice && product.price && product.discountStart && product.discountEnd) {
-        const now = new Date();
-        if (now >= product.discountStart && now <= product.discountEnd) {
-          discountPrice = product.discountPrice;
-          discountRate = Math.round(((product.price - product.discountPrice) / product.price) * 100);
-        }
-      }
-
-      return {
-        id: String(product.id), // Ensure ID is a string as per frontend type
-        storeId: String(product.storeId), // Ensure storeId is a string
-        storeName: product.store.name,
-        name: product.name,
-        image: product.mainImageUrl, // Frontend uses 'image', backend 'mainImageUrl'
-        price: product.price,
-        discountPrice: discountPrice,
-        discountRate: discountRate,
-        discountStartTime: product.discountStart ? product.discountStart.toISOString() : null,
-        discountEndTime: product.discountEnd ? product.discountEnd.toISOString() : null,
-        reviewsCount: 0, // Placeholder, actual count needs to be fetched
-        reviewsRating: 0, // Placeholder, actual rating needs to be fetched
-        createdAt: product.createdAt.toISOString(),
-        updatedAt: product.updatedAt.toISOString(),
-        sales: product.totalSales, // Frontend uses 'sales', backend 'totalSales'
+    const store = await this.productRepository.findStoreById(storeId);
+    if (!store) {
+      throw {
+        statusCode: 404,
+        message: "스토어를 찾을 수 없습니다." // Not Found
       };
-    });
+    }
 
+    const category = await this.productRepository.findCategoryById(categoryName);
+    if (!category) {
+      throw {
+        statusCode: 404,
+        message: "카테고리가 없습니다." // Not Found
+      };
+    }
 
-    return {
-      list: formattedProducts,
-      totalCount,
+    const data = {
+      name,
+      price,
+      content,
+      image,
+      discountRate,
+      discountStartTime: discountStartTime ? new Date(discountStartTime) : null,
+      discountEndTime: discountEndTime ? new Date(discountEndTime) : null,
+      storeId,
+      categoryName,
+      stocks: {
+        create: stocks.map((s) => ({
+          size: s.size,
+          quantity: s.quantity
+        }))
+      }
     };
+    const product = await this.productRepository.createProduct(data);
+    return product; 
+  }
+
+  async getProducts(query: ProductQueryDto) {
+    const { page = 1, pageSize = 10, search, sort, priceMin, priceMax, size, categoryName } = query;
+
+    const filter: any = {};
+    if (search) filter.name = { contains: search };
+    if (categoryName) filter.categoryId = categoryName;
+    if (priceMin || priceMax) {
+      filter.price = {
+        gte: priceMin,
+        lte: priceMax
+      };
+    }
+    if (size) {
+      filter.stocks = { some: { size } };
+    }
+
+    const orderBy = (() => {
+      switch (sort) {
+        case "recent": return { createdAt: "desc" };
+        case "lowPrice": return { price: "asc" };
+        case "highPrice": return { price: "desc" };
+        case "highRating": return { reviewsRating: "desc" };
+        case "salesRanking": return { sales: "desc" };
+        case "mostReviewed": return { reviewsCount: "desc" };
+        default: return { createdAt: "desc" };
+      }
+    })();
+
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    return this.productRepository.getProducts(filter, orderBy, skip, take);
+  }
+
+  async updateProduct(productId: number, body: UpdateProductDto) {
+    const product = await this.productRepository.findProductById(productId);
+    if (!product) {
+      throw {
+        statusCode: 404,
+        message: "상품을 찾을 수 없습니다."
+      };
+    }
+
+    const {
+      name,
+      price,
+      content,
+      image,
+      discountRate,
+      discountStartTime,
+      discountEndTime,
+      categoryName,
+      isSoldOut,
+      stocks
+    } = body;
+
+    const data: any = {
+      name,
+      price,
+      content,
+      image,
+      discountRate,
+      discountStartTime: discountStartTime ? new Date(discountStartTime) : undefined,
+      discountEndTime: discountEndTime ? new Date(discountEndTime) : undefined,
+      categoryName,
+      isSoldOut
+    };
+
+    // 재고 갱신
+    if (stocks) {
+      await this.productRepository.deleteStocksByProduct(productId);
+      data.stocks = {
+        create: stocks.map((s) => ({
+          size: s.size,
+          quantity: s.quantity
+        }))
+      };
+    }
+
+    return this.productRepository.updateProduct(productId, data);
+  }
+
+  async getProductById(productId: number) {
+    const product = await this.productRepository.findProductDetailById(productId);
+    if (!product) {
+      throw {
+        statusCode: 404,
+        message: "상품을 찾을 수 없습니다."
+      };
+    }
+    return product;
+  }
+
+  async deleteProduct(productId: number) {
+    const product = await this.productRepository.findProductById(productId);
+    if (!product) {
+      throw {
+        statusCode: 404,
+        message: "상품을 찾을 수 없습니다."
+      };
+    }
+
+    return this.productRepository.deleteProduct(productId);
   }
 }
-
-export const productService = new ProductService();
