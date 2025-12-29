@@ -3,54 +3,62 @@ import * as DashboardTypes from '../types/dashboard.js';
 
 const prisma = new PrismaClient();
 
+// Helper to set time to the start of the day (00:00:00.000)
+const startOfDay = (date: Date) => {
+    date.setHours(0, 0, 0, 0);
+    return date;
+};
+
+// Helper to set time to the end of the day (23:59:59.999)
+const endOfDay = (date: Date) => {
+    date.setHours(23, 59, 59, 999);
+    return date;
+};
+
 const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
     const today = new Date();
     let startCurrent: Date, endCurrent: Date, startPrevious: Date, endPrevious: Date;
 
     switch (period) {
         case 'today':
-            startCurrent = new Date(today);
-            startCurrent.setHours(0, 0, 0, 0);
-            endCurrent = new Date(today);
-            endCurrent.setHours(23, 59, 59, 999);
+            startCurrent = startOfDay(new Date(today));
+            endCurrent = endOfDay(new Date(today));
 
-            startPrevious = new Date(startCurrent);
-            startPrevious.setDate(startCurrent.getDate() - 1);
-            endPrevious = new Date(endCurrent);
-            endPrevious.setDate(endCurrent.getDate() - 1);
+            startPrevious = startOfDay(new Date(today));
+            startPrevious.setDate(today.getDate() - 1);
+            endPrevious = endOfDay(new Date(today));
+            endPrevious.setDate(today.getDate() - 1);
             break;
         case 'week':
-            const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
-            const diffToMonday = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to get to Monday
+            const dayOfWeek = today.getDay();
+            const diffToMonday = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
 
-            startCurrent = new Date(today.getFullYear(), today.getMonth(), diffToMonday);
-            startCurrent.setHours(0, 0, 0, 0);
+            startCurrent = startOfDay(new Date(today.getFullYear(), today.getMonth(), diffToMonday));
+            endCurrent = endOfDay(new Date(today.getFullYear(), today.getMonth(), diffToMonday + 6));
 
-            endCurrent = new Date(today.getFullYear(), today.getMonth(), diffToMonday + 6);
-            endCurrent.setHours(23, 59, 59, 999);
-
-            startPrevious = new Date(startCurrent);
+            startPrevious = startOfDay(new Date(startCurrent));
             startPrevious.setDate(startCurrent.getDate() - 7);
-            endPrevious = new Date(endCurrent);
+            endPrevious = endOfDay(new Date(endCurrent));
             endPrevious.setDate(endCurrent.getDate() - 7);
             break;
         case 'month':
-            startCurrent = new Date(today.getFullYear(), today.getMonth(), 1);
-            endCurrent = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+            startCurrent = startOfDay(new Date(today.getFullYear(), today.getMonth(), 1));
+            endCurrent = endOfDay(new Date(today.getFullYear(), today.getMonth() + 1, 0));
 
-            startPrevious = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            endPrevious = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
+            startPrevious = startOfDay(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+            endPrevious = endOfDay(new Date(today.getFullYear(), today.getMonth(), 0));
             break;
         case 'year':
-            startCurrent = new Date(today.getFullYear(), 0, 1);
-            endCurrent = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
+            startCurrent = startOfDay(new Date(today.getFullYear(), 0, 1));
+            endCurrent = endOfDay(new Date(today.getFullYear(), 11, 31));
 
-            startPrevious = new Date(today.getFullYear() - 1, 0, 1);
-            endPrevious = new Date(today.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
+            startPrevious = startOfDay(new Date(today.getFullYear() - 1, 0, 1));
+            endPrevious = endOfDay(new Date(today.getFullYear() - 1, 11, 31));
             break;
     }
     return { startCurrent, endCurrent, startPrevious, endPrevious };
 };
+
 
 
 class DashboardService {
@@ -78,39 +86,49 @@ class DashboardService {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return [];
 
-      const topProductsData = await prisma.orderItem.groupBy({
-          by: ['productId'],
-          where: {
-              product: { storeId: store.id },
-              order: { paymentDate: { gte: startDate, lte: endDate }, status: 'PAID' },
-          },
-          _sum: { quantity: true },
-          orderBy: { _sum: { quantity: 'desc' } },
-          take: 5,
-      });
-      
-      if (topProductsData.length === 0) return [];
+      const rawTopProducts = await prisma.$queryRaw<Array<{productId: number, totalQuantity: BigInt}>>`
+        SELECT
+            oi."productId",
+            SUM(oi.quantity) AS "totalQuantity"
+        FROM
+            "OrderItem" oi
+        JOIN
+            "Product" p ON oi."productId" = p.id
+        JOIN
+            "Order" o ON oi."orderId" = o.id
+        WHERE
+            p."storeId" = ${store.id} AND o."paymentDate" >= ${startDate} AND o."paymentDate" <= ${endDate} AND o.status = 'PAID'
+        GROUP BY
+            oi."productId"
+        ORDER BY
+            "totalQuantity" DESC
+        LIMIT 5
+      `;
 
+      if (rawTopProducts.length === 0) return [];
+
+      const productIds = rawTopProducts.map(p => p.productId);
       const products = await prisma.product.findMany({
-          where: { id: { in: topProductsData.map(p => p.productId) } }
+          where: { id: { in: productIds } }
       });
       const productsMap = new Map(products.map(p => [p.id, p]));
 
-      const topSales: DashboardTypes.TopSale[] = topProductsData.map(item => {
+      const topSales: DashboardTypes.TopSale[] = rawTopProducts.map(item => {
           const product = productsMap.get(item.productId);
-          if (!product) { // Add this check
+          if (!product) {
               console.warn(`Product with ID ${item.productId} not found for top sales data.`);
-              return null; // Skip this item or handle as needed
+              return null;
           }
           return {
-              totalOrders: item._sum.quantity || 0,
-              prodcuts: {
+              totalOrders: Number(item.totalQuantity),
+              products: {
                   id: product.id.toString(),
                   name: product.name,
                   price: product.price,
               },
           };
-      }).filter(Boolean) as DashboardTypes.TopSale[]; // Filter out nulls
+      }).filter(Boolean) as DashboardTypes.TopSale[];
+      
       return topSales;
   }
 
@@ -133,8 +151,10 @@ class DashboardService {
             { label: '10만원 ~', min: 100001, max: Infinity },
         ];
 
-        const rangeRevenues = new Map<string, number>(priceRangesConfig.map(r => [r.label, 0]));
+        const rangeRevenues = new Map<string, number>();
         let totalRevenue = 0;
+
+        priceRangesConfig.forEach(r => rangeRevenues.set(r.label, 0));
 
         for (const item of orderItems) {
             const revenue = item.price * item.quantity;
@@ -169,12 +189,12 @@ class DashboardService {
             this.getSalesDataForPeriod(sellerId, startPrevious, endPrevious)
         ]);
 
-        const chageRate: DashboardTypes.ChangeRate = {
+        const changeRate: DashboardTypes.ChangeRate = {
             totalOrders: previous.totalOrders === 0 ? (current.totalOrders > 0 ? 100 : 0) : parseFloat((((current.totalOrders - previous.totalOrders) / previous.totalOrders) * 100).toFixed(2)),
             totalSales: previous.totalSales === 0 ? (current.totalSales > 0 ? 100 : 0) : parseFloat((((current.totalSales - previous.totalSales) / previous.totalSales) * 100).toFixed(2)),
         };
 
-        return [period, { current, previous, chageRate }];
+        return [period, { current, previous, changeRate }];
     });
     
     const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30));
