@@ -1,11 +1,11 @@
-import prisma from '../../prisma/prisma.js';
+import prisma from '../common/prisma.js';
 import bcrypt from 'bcrypt';
 import type { User, UserRole } from '@prisma/client';
-import { HttpError } from '../../utils/error-handler.js';
-import { toUserResponseDto } from '../../utils/user-mapper.js';
-import type { UserResponseDto } from '../../types/index.js';
-import { GRADE_POLICIES } from '../../types/index.js';
-import type { GradePolicy, UserPointResponse } from '../../types/index.js';
+import { HttpError } from '../utils/error-handler.js';
+import { toUserResponseDto } from '../utils/user-mapper.js';
+import type { UserResponseDto } from '../types/index.js';
+import { GRADE_POLICIES } from '../types/index.js';
+import type { GradePolicy, UserPointResponse } from '../types/index.js';
 
 // 회원가입
 export async function signupService(

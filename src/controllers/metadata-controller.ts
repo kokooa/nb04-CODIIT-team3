@@ -1,6 +1,6 @@
 // src/controllers/metadata.controller.ts
 import type { Request, Response } from 'express';
-import { GRADE_POLICIES } from '../../types/index.js';
+import { GRADE_POLICIES } from '../types/index.js';
 
 export const getGradeMetadata = async (req: Request, res: Response) => {
   try {

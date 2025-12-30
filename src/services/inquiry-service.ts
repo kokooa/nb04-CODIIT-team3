@@ -1,7 +1,6 @@
 import { HttpError } from '../common/http-error.js';
 import type {
   FetchInquiriesParamsDto,
-  InquiryItemDto,
   InquiryListResponseDto,
   FetchInquiryDetailParamsDto,
   InquiryDetailResponseDto,
@@ -67,7 +66,7 @@ export const getInquiryDetail = async (
   )
     throw new HttpError('비밀글입니다.', 403);
 
-  const { reply, status, product, ...rest } = inquiryDetail;
+  const { reply, user, status, product, ...rest } = inquiryDetail;
 
   if (reply) {
     const { seller, ...replyRest } = reply;
@@ -110,6 +109,16 @@ export const updateInquiry = async (
   const updatedInquiry = await inquiryRepository.updateInquiry(body);
   const { status, reply, ...rest } = updatedInquiry;
 
+  if (reply) {
+    const { seller, ...replyRest } = reply;
+    const replyResult = {
+      ...replyRest,
+      user: seller,
+    };
+
+    return { status: status as InquiryStatus, reply: replyResult, ...rest };
+  }
+
   return { status: status as InquiryStatus, ...rest };
 };
 
@@ -133,7 +142,17 @@ export const deleteInquiry = async (
 
   const deletedInquiry = await inquiryRepository.deleteInquiry(params);
 
-  const { status, ...rest } = deletedInquiry;
+  const { status, reply, ...rest } = deletedInquiry;
+
+  if (reply) {
+    const { seller, ...replyRest } = reply;
+    const replyResult = {
+      ...replyRest,
+      user: seller,
+    };
+
+    return { status: status as InquiryStatus, reply: replyResult, ...rest };
+  }
 
   return { status: status as InquiryStatus, ...rest };
 };
@@ -165,16 +184,9 @@ export const createInquiryReply = async (
   const createdInquiryReply = await inquiryRepository.createInquiryReply(body);
   const { sellerId, ...restCreatedInquiry } = createdInquiryReply;
 
-  // 답변자 정보 받아오기
-  const userInfo = await inquiryRepository.fetchUserById(sellerId);
-
   const result: CreateInquiryReplyResponseDto = {
     ...restCreatedInquiry,
     userId: sellerId,
-    user: {
-      id: userInfo.id,
-      name: userInfo.name,
-    },
   };
 
   return result;
@@ -201,16 +213,9 @@ export const updateInquiryReply = async (
 
   const { sellerId, ...rest } = updatedInquiryReply;
 
-  // 답변자 정보 받아오기
-  const userInfo = await inquiryRepository.fetchUserById(sellerId);
-
   const result: UpdateInquiryReplyResponseDto = {
     ...rest,
     userId: sellerId,
-    user: {
-      id: userInfo.id,
-      name: userInfo.name,
-    },
   };
 
   return result;

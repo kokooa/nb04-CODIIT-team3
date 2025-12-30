@@ -31,15 +31,6 @@ app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
 app.use('/stores', storeRouter);
 
-// 에러 핸들러
-app.use(errorHandler);
-
-const PORT: number = Number(process.env.PORT) || 3000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`서버 실행 중: http://localhost:${PORT}`);
-});
-
 // 명시적 DB 연결
 await prisma.$connect();
 console.log('데이터베이스에 성공적으로 연결됨.');
