@@ -15,6 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: 'http://localhost:3000', // 프론트엔드 포트
+    // origin: 'http://ec2-54-180-30-149.ap-northeast-2.compute.amazonaws.com', // 배포용 프론트엔드 도메인
     credentials: true,
   }),
 );
@@ -22,7 +23,17 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// 미들웨어 설정
+// HTTP 요청 출력
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
+app.get('/', (req, res) => {
+  res.status(200).send('Health OK');
+});
+
+// 라우터 설정
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
 app.use('/metadata', metadataRouter);
@@ -32,12 +43,6 @@ app.use('/review', reviewRoutes);
 
 // 에러 핸들러
 app.use(errorHandler);
-
-const PORT: number = Number(process.env.PORT) || 4000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`서버 실행 중: http://localhost:${PORT}`);
-});
 
 // 명시적 DB 연결
 await prisma.$connect();

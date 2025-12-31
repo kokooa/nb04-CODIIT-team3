@@ -1,8 +1,8 @@
-import prisma from '../../prisma/prisma.js';
+import prisma from '../common/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { HttpError } from '../../utils/error-handler.js';
-import type { DBUserResult } from '../../types/index.js';
+import { HttpError } from '../utils/error-handler.js';
+import type { DBUserResult } from '../types/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;

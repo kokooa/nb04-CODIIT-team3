@@ -22,15 +22,9 @@ router.delete('/:inquiryId', inquiryController.deleteInquiry); // 인증 미들�
 ); */
 
 // 문의 답변
-router.post(
-  '/:inquiryId/replies',
-  inquiryController.createInquiryReply,
-); // 인증 미들웨어 추가 예정
+router.post('/:inquiryId/replies', inquiryController.createInquiryReply); // 인증 미들웨어 추가 예정
 
 // 문의 답변 수정
-router.patch(
-  '/:replyId/replies',
-  inquiryController.updateInquiryReply,
-); // 인증 미들웨어 추가 예정
+router.patch('/:replyId/replies', inquiryController.updateInquiryReply); // 인증 미들웨어 추가 예정
 
 export default router;
