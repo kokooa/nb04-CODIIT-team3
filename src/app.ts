@@ -15,6 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: 'http://localhost:3000', // 프론트엔드 포트
+    // origin: 'http://ec2-54-180-30-149.ap-northeast-2.compute.amazonaws.com', // 배포용 프론트엔드 도메인
     credentials: true,
   }),
 );
@@ -22,7 +23,17 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// 미들웨어 설정
+// HTTP 요청 출력
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
+app.get('/', (req, res) => {
+  res.status(200).send('Health OK');
+});
+
+// 라우터 설정
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
 app.use('/metadata', metadataRouter);
