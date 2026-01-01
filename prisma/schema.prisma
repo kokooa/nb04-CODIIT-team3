@@ -40,6 +40,7 @@ model User {
   userPoints     UserPoint? // 포인트 및 등급 정보
   favoriteStores FavoriteStore[] // 관심 스토어
   inquiryReplies InquiryReply[] // 답변 (1:1 관계)
+  notifications  Notification[] // [추가됨] 알림 목록
 }
 
 // -----------------------------------------------------------
@@ -263,4 +264,20 @@ model FavoriteStore {
   store Store @relation(fields: [storeId], references: [id])
 
   @@unique([userId, storeId]) // 사용자별 스토어는 한 번만 등록 가능
+}
+
+// -----------------------------------------------------------
+// 7. 알림 (Notification) [새로 추가됨]
+// -----------------------------------------------------------
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String // 알림을 받을 대상 유저 ID
+  type      String // 알림 종류 (예: SOLD_OUT, NEW_INQUIRY, INQUIRY_REPLY 등)
+  message   String // 알림 내용
+  isRead    Boolean  @default(false) // 읽음 여부
+  createdAt DateTime @default(now())
+
+  // 관계 설정
+  user User @relation(fields: [userId], references: [id])
 }
