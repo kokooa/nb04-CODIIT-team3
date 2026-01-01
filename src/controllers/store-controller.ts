@@ -87,15 +87,26 @@ export class StoreController {
 
   /**
    * 스토어 정보를 수정합니다. (스토어 소유주 판매자만 가능)
-   * PUT /api/stores/:storeId
+   * PATCH /api/stores/:storeId
    */
   async updateStore(req: Request, res: Response, next: NextFunction) {
     try {
+      const sellerId = req.user!.id;
       const storeId = req.params.storeId;
       // TODO: 나중에 CUID 유효성 validation 미들웨어 있으면 좋을 것 같네요.
       if (!storeId) {
         return res.status(400).json({ message: '스토어 ID가 필요합니다.' });
       }
+
+      // 스토어 소유권 검증
+      const store = await storeService.getStoreById(storeId);
+      if (!store) {
+        return res.status(404).json({ message: '스토어를 찾을 수 없습니다.' });
+      }
+      if (store.sellerId !== sellerId) {
+        return res.status(403).json({ message: '해당 스토어를 수정할 권한이 없습니다.' });
+      }
+
       const { name, address, phoneNumber, description } = req.body;
       let storeImageUrl: string | undefined;
 
