@@ -46,7 +46,6 @@ export function authMiddleware(
       email: decoded.email,
       type: decoded.type,
     };
-
     next();
   } catch (err: unknown) {
     console.error('JWT 검증 실패:', err instanceof Error ? err.message : err);
