@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: ['main', 'dev', 'feature/ci-cd']
+    branches: ['main', 'dev']
 
 env:
   REGISTRY: ghcr.io
@@ -46,8 +46,8 @@ jobs:
         run: docker build . -t $IMAGE_NAME --target production
 
   deploy:
-    # 'main' 브랜치 push, 또는 'feature/ci-cd' 브랜치의 push/pr일 때 실행
-    # if: github.ref_name == 'main' || github.ref_name == 'dev' || github.ref_name == 'feature/ci-cd'
+    # 'main' 브랜치 push 이벤트에 실행
+    # if: github.ref_name == 'main' || github.ref_name == 'dev'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
@@ -97,6 +97,6 @@ jobs:
           script: |
             # 운영용 .env 파일이 서버에 이미 존재한다고 가정
             cd /home/ec2-user/git/codeit/nb04-CODIIT-team3
-            git checkout feature/ci-cd && git pull
+            git checkout dev && git pull
             /usr/local/lib/docker/cli-plugins/docker-compose pull backend
             /usr/local/lib/docker/cli-plugins/docker-compose up -d
