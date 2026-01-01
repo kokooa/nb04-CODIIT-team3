@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const CartService = {
-  // 장바구니 담기 및 수량 수정
   async addToCart(
     userId: string,
     productId: string,
@@ -26,7 +25,6 @@ export const CartService = {
     });
   },
 
-  // 장바구니 목록 조회
   async getCart(userId: string) {
     return await prisma.cartItem.findMany({
       where: { userId },
@@ -34,10 +32,9 @@ export const CartService = {
     });
   },
 
-  // 장바구–니 항목 삭제
-  async removeFromCart(cartItemId: string) {
+  async removeFromCart(id: string) {
     return await prisma.cartItem.delete({
-      where: { id: cartItemId },
+      where: { id },
     });
   },
 };

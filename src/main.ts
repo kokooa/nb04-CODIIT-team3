@@ -5,7 +5,7 @@ import app from './app.js';
 import prisma from './common/prisma.js';
 import http from 'node:http';
 
-const PORT = process.env.PORT || 4000; // 포트를 4000으로 통일하거나 .env 설정을 따름
+const PORT = Number(process.env.PORT) || 4000; // 포트를 4000으로 통일하거나 .env 설정을 따름
 
 async function bootstrap() {
   try {

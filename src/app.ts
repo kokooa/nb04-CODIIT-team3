@@ -8,6 +8,8 @@ import notificationRouter from './routes/notification.router.js';
 import inquiryRoutes from './routes/inquiry-router.js';
 import reviewRoutes from './routes/review-router.js';
 import { errorHandler } from './common/error-handler.js';
+import cartRouter from './routes/cart-router.js';
+import purchaseRouter from './routes/purchase-router.js';
 // prisma import는 제거해도 됩니다 (main.ts에서 관리하므로)
 
 const app = express();
@@ -40,6 +42,8 @@ app.use('/metadata', metadataRouter);
 app.use('/notifications', notificationRouter);
 app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
+app.use('/api/cart', cartRouter);
+app.use('/api/purchase', purchaseRouter);
 
 // 에러 핸들러
 app.use(errorHandler);
