@@ -45,6 +45,7 @@ app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
 app.use('/api/cart', cartRouter);
 app.use('/api/purchase', purchaseRouter);
+app.use('/api/stores', storeRouter);
 
 // 에러 핸들러
 app.use(errorHandler);
