@@ -14,7 +14,7 @@ async function bootstrap() {
     console.log('데이터베이스에 성공적으로 연결됨.');
 
     // 2. 서버 실행
-    const server = app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`서버 실행 중: http://localhost:${PORT}`);
     });
 
