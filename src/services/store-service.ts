@@ -10,6 +10,13 @@ interface StoreCreationData {
   phoneNumber: string;
   storeImageUrl?: string | null;
   description?: string | null;
+
+  //   name: string;
+  //   adrees: string;
+  //   detailAddress: string;
+  //   phoneNumber: string;
+  //   content: string;
+  //   image: string?;
 }
 
 interface StoreUpdateData {
@@ -35,9 +42,22 @@ export class StoreService {
         name: data.name,
         address: data.address,
         phoneNumber: data.phoneNumber,
-        storeImageUrl: data.storeImageUrl === undefined ? null : data.storeImageUrl,
+        storeImageUrl:
+          data.storeImageUrl === undefined ? null : data.storeImageUrl,
         description: data.description === undefined ? null : data.description,
       },
+      // data: {
+      //   id,
+      //   name,
+      //   createdAt,
+      //   updatedAt,
+      //   userId,
+      //   address,
+      //   detailAddress,
+      //   phoneNumber,
+      //   content,
+      //   image
+      // }
     });
   }
 
@@ -46,7 +66,8 @@ export class StoreService {
    * @param sellerId 스토어를 조회할 판매자의 ID
    * @returns 판매자의 스토어 객체 또는 null (집합 필드 포함)
    */
-  async getMyStore(sellerId: string) { // 타입을 string으로 변경
+  async getMyStore(sellerId: string) {
+    // 타입을 string으로 변경
     const store = await prisma.store.findUnique({
       where: { sellerId },
       include: {
@@ -55,7 +76,8 @@ export class StoreService {
             totalSales: true,
           },
         },
-        favorites: { // 총 관심 스토어 수 및 월별 관심 스토어 수를 위해 모든 관심 스토어를 포함
+        favorites: {
+          // 총 관심 스토어 수 및 월별 관심 스토어 수를 위해 모든 관심 스토어를 포함
           select: {
             id: true,
             createdAt: true, // 월별 관심 스토어 수 계산에 필요
@@ -69,7 +91,10 @@ export class StoreService {
     }
 
     const productCount = store.products.length;
-    const totalSoldCount = store.products.reduce((sum, product) => sum + product.totalSales, 0);
+    const totalSoldCount = store.products.reduce(
+      (sum, product) => sum + product.totalSales,
+      0,
+    );
 
     // 총 관심 스토어 수 계산
     const favoriteCount = store.favorites.length;
@@ -78,7 +103,7 @@ export class StoreService {
     const startOfMonth = dayjs().startOf('month').toDate();
     const endOfMonth = dayjs().endOf('month').toDate();
     const monthFavoriteCount = store.favorites.filter(
-      (fav) => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth
+      fav => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth,
     ).length;
 
     // 백엔드 필드를 프론트엔드에서 예상하는 필드로 매핑
@@ -92,6 +117,22 @@ export class StoreService {
       favoriteCount, // 총 관심 스토어 수 추가
       totalSoldCount,
       monthFavoriteCount,
+
+      // 실제로 프론트에서 원하는 양식
+      // id,
+      // name,
+      // createdAt,
+      // updatedAt,
+      // userId,
+      // address,
+      // detailAddress,
+      // phoneNumber,
+      // content,
+      // image,
+      // productCount,
+      // favoriteCount,
+      // monthFavoriteCount,
+      // totalSoldCount
     };
   }
 
@@ -115,7 +156,10 @@ export class StoreService {
   async updateStore(storeId: string, data: StoreUpdateData) {
     const updateData: any = { ...data };
 
-    if ('storeImageUrl' in updateData && updateData.storeImageUrl === undefined) {
+    if (
+      'storeImageUrl' in updateData &&
+      updateData.storeImageUrl === undefined
+    ) {
       updateData.storeImageUrl = null;
     }
     if ('description' in updateData && updateData.description === undefined) {
@@ -125,6 +169,19 @@ export class StoreService {
     return prisma.store.update({
       where: { id: storeId },
       data: updateData,
+
+      // 여기서 updateData가 밑의 양식과 일치하는지 확인
+      // id,
+      // name,
+      // createdAt,
+      // updatedAt,
+      // userId,
+      // address,
+      // detailAddress,
+      // phoneNumber,
+      // content,
+      // image,
+      // favoriteCount
     });
   }
 
@@ -142,9 +199,24 @@ export class StoreService {
           userId,
           storeId,
         },
+        // 여기서도 응답 형식
+        // type,
+        // store {
+        //   id,
+        //   name,
+        //   createdAt,
+        //   updatedAt,
+        //   userId,
+        //   address,
+        //   detailAddress,
+        //   phoneNumber,
+        //   content,
+        //   image
+        // }
       });
     } catch (error: any) {
-      if (error.code === 'P2002') { // 유니크 제약 조건 위반
+      if (error.code === 'P2002') {
+        // 유니크 제약 조건 위반
         throw new Error('이미 관심 스토어로 등록된 스토어입니다.');
       }
       throw error;
@@ -165,6 +237,20 @@ export class StoreService {
           storeId,
         },
       },
+      // 형식
+      // type,
+      // store: {
+      //   id,
+      //   name,
+      //   createdAt,
+      //   updatedAt,
+      //   userId,
+      //   address,
+      //   detailAdderss,
+      //   phoneNumber,
+      //   content,
+      //   image
+      // }
     });
   }
 

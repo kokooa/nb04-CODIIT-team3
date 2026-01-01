@@ -6,7 +6,7 @@ type NextFunction = express.NextFunction;
 import { StoreService } from '../services/store-service.js';
 import { UserRole } from '@prisma/client';
 
-
+// 내 스토어 등록 상품 조회가 없는데 아마 product가 없어서 아직 작성하지 않으신듯 합니다.
 
 const storeService = new StoreService();
 
@@ -21,10 +21,14 @@ export class StoreController {
       const sellerId = req.user!.id;
 
       const { name, address, phoneNumber, description } = req.body;
-      const storeImageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+      const storeImageUrl = req.file
+        ? `/uploads/${req.file.filename}`
+        : undefined;
 
       if (!name || !address || !phoneNumber) {
-        return res.status(400).json({ message: '스토어 이름, 주소, 전화번호는 필수 항목입니다.' });
+        return res
+          .status(400)
+          .json({ message: '스토어 이름, 주소, 전화번호는 필수 항목입니다.' });
       }
 
       const newStore = await storeService.createStore(sellerId, {
@@ -33,9 +37,23 @@ export class StoreController {
         phoneNumber,
         storeImageUrl: storeImageUrl === undefined ? null : storeImageUrl,
         description: description === undefined ? null : description,
+
+        // name,
+        // address,
+        // detailAddress,
+        // phoneNumber,
+        // content,
+        // image,
+
+        // OR
+
+        // StoreCreationData 이거 사용해야 하는게 아닌지
       });
 
-      res.status(201).json({ message: '스토어가 성공적으로 생성되었습니다.', store: newStore });
+      res.status(201).json({
+        message: '스토어가 성공적으로 생성되었습니다.',
+        store: newStore,
+      });
     } catch (error) {
       next(error);
     }
@@ -70,7 +88,9 @@ export class StoreController {
       const storeId = parseInt(req.params.storeId as string);
 
       if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+        return res
+          .status(400)
+          .json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
       const store = await storeService.getStoreById(storeId);
@@ -102,7 +122,9 @@ export class StoreController {
       }
 
       if (!name && !address && !phoneNumber && !storeImageUrl && !description) {
-        return res.status(400).json({ message: '수정할 스토어 정보가 없습니다.' });
+        return res
+          .status(400)
+          .json({ message: '수정할 스토어 정보가 없습니다.' });
       }
 
       const updatedStore = await storeService.updateStore(storeId, {
@@ -113,7 +135,10 @@ export class StoreController {
         description: description === undefined ? null : description,
       });
 
-      res.status(200).json({ message: '스토어 정보가 성공적으로 수정되었습니다.', store: updatedStore });
+      res.status(200).json({
+        message: '스토어 정보가 성공적으로 수정되었습니다.',
+        store: updatedStore,
+      });
     } catch (error) {
       next(error);
     }
@@ -129,12 +154,19 @@ export class StoreController {
       const storeId = parseInt(req.params.storeId as string);
 
       if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+        return res
+          .status(400)
+          .json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
-      const favoriteStore = await storeService.addFavoriteStore(userId, storeId);
+      const favoriteStore = await storeService.addFavoriteStore(
+        userId,
+        storeId,
+      );
 
-      res.status(201).json({ message: '관심 스토어로 등록되었습니다.', favoriteStore });
+      res
+        .status(201)
+        .json({ message: '관심 스토어로 등록되었습니다.', favoriteStore });
     } catch (error: any) {
       if (error.message.includes('이미 관심 스토어로 등록된 스토어입니다.')) {
         return res.status(409).json({ message: error.message });
@@ -153,7 +185,9 @@ export class StoreController {
       const storeId = parseInt(req.params.storeId as string);
 
       if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+        return res
+          .status(400)
+          .json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
       await storeService.removeFavoriteStore(userId, storeId);

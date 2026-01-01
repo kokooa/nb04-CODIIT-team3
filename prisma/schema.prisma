@@ -57,6 +57,9 @@ model Store {
   description   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  // detailAddress가 없고
+  // description 이 아니라 content로 바꿔야함
+  // stroeImageUrl이 아니라 image 사용해야함
 
   // 관계 설정
   seller    User            @relation(fields: [sellerId], references: [id])
