@@ -1,5 +1,6 @@
 import express from 'express';
 import * as reviewController from '../controllers/review-controller.js';
+import { authMiddleware } from '../common/middlewares.js';
 
 const router = express.Router();
 
@@ -10,12 +11,16 @@ const router = express.Router();
 // router.patch('/:reviewId', reviewController.updateReview);
 
 // 리뷰 삭제 (리뷰ID)
-router.delete('/:reviewId', reviewController.deleteReview);
+router.delete('/:reviewId', authMiddleware, reviewController.deleteReview);
 
 // 상품 리뷰 목록 조회 (페이지네이션 포함/상품ID)
 // router.get('/product/:productId/reviews', reviewController.getReviews);
 
 // 상품 리뷰 작성 (상품ID)
-// router.post('/product/:productId/reviews', reviewController.createReview);
+/* router.post(
+  '/product/:productId/reviews',
+  authMiddleware,
+  reviewController.createReview,
+); */
 
 export default router;
