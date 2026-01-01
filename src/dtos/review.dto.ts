@@ -78,7 +78,7 @@ export interface GetReviewsParamsDto {
   productId: string;
   limit: number;
   page: number;
-  userId: string;
+  // userId: string;
 }
 
 export type GetReviewsResponseDto = {
