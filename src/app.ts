@@ -7,6 +7,7 @@ import metadataRouter from './routes/metadata-router.js';
 import notificationRouter from './routes/notification.router.js';
 import inquiryRoutes from './routes/inquiry-router.js';
 import reviewRoutes from './routes/review-router.js';
+import { storeRouter } from './routes/store-router.js';
 import { errorHandler } from './common/error-handler.js';
 // prisma import는 제거해도 됩니다 (main.ts에서 관리하므로)
 
