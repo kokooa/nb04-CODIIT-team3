@@ -67,10 +67,10 @@ export class StoreController {
    */
   async getStoreDetail(req: Request, res: Response, next: NextFunction) {
     try {
-      const storeId = parseInt(req.params.storeId as string);
-
-      if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+      const storeId = req.params.storeId;
+      // TODO: 나중에 CUID 유효성 validation 미들웨어 있으면 좋을 것 같네요.
+      if (!storeId) {
+        return res.status(400).json({ message: '스토어 ID가 필요합니다.' });
       }
 
       const store = await storeService.getStoreById(storeId);
@@ -91,7 +91,11 @@ export class StoreController {
    */
   async updateStore(req: Request, res: Response, next: NextFunction) {
     try {
-      const storeId = parseInt(req.params.storeId as string);
+      const storeId = req.params.storeId;
+      // TODO: 나중에 CUID 유효성 validation 미들웨어 있으면 좋을 것 같네요.
+      if (!storeId) {
+        return res.status(400).json({ message: '스토어 ID가 필요합니다.' });
+      }
       const { name, address, phoneNumber, description } = req.body;
       let storeImageUrl: string | undefined;
 
@@ -126,10 +130,10 @@ export class StoreController {
   async addFavoriteStore(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const storeId = parseInt(req.params.storeId as string);
-
-      if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+      const storeId = req.params.storeId;
+      // TODO: 나중에 CUID 유효성 validation 미들웨어 있으면 좋을 것 같네요.
+      if (!storeId) {
+        return res.status(400).json({ message: '스토어 ID가 필요합니다.' });
       }
 
       const favoriteStore = await storeService.addFavoriteStore(userId, storeId);
@@ -150,10 +154,10 @@ export class StoreController {
   async removeFavoriteStore(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const storeId = parseInt(req.params.storeId as string);
-
-      if (isNaN(storeId)) {
-        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+      const storeId = req.params.storeId;
+      // TODO: 나중에 CUID 유효성 validation 미들웨어 있으면 좋을 것 같네요.
+      if (!storeId) {
+        return res.status(400).json({ message: '스토어 ID가 필요합니다.' });
       }
 
       await storeService.removeFavoriteStore(userId, storeId);
