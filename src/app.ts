@@ -44,14 +44,4 @@ app.use('/review', reviewRoutes);
 // 에러 핸들러
 app.use(errorHandler);
 
-<<<<<<< Updated upstream
-// 명시적 DB 연결
-await prisma.$connect();
-console.log('데이터베이스에 성공적으로 연결됨.');
-
 export default app;
-=======
-// 💡 여기서 app.listen과 prisma.$connect를 삭제했습니다!
-
-export default app;
->>>>>>> Stashed changes
