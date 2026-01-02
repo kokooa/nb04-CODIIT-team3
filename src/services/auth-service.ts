@@ -28,12 +28,12 @@ export async function loginService(email: string, password: string) {
   }
 
   const accessToken = jwt.sign(
-    { userId: user.id, email: user.email },
+    { id: user.id, email: user.email, type: user.type },
     JWT_SECRET!,
     { expiresIn: '2h' },
   );
 
-  const refreshToken = jwt.sign({ userId: user.id }, REFRESH_SECRET!, {
+  const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET!, {
     expiresIn: '7d',
   });
 
