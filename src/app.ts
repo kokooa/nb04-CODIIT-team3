@@ -13,11 +13,17 @@ import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
 // prisma import는 제거해도 됩니다 (main.ts에서 관리하므로)
 
+// 임시 라우터용 (Product review)
+// --------------------------
+import * as reviewController from './controllers/review-controller.js';
+import { authMiddleware } from './common/middlewares.js';
+// --------------------------
+
 const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:3000', // 프론트엔드 포트
+    origin: 'http://localhost:3001', // 프론트엔드 포트
     // origin: 'http://ec2-54-180-30-149.ap-northeast-2.compute.amazonaws.com', // 배포용 프론트엔드 도메인
     credentials: true,
   }),
@@ -46,6 +52,19 @@ app.use('/review', reviewRoutes);
 app.use('/api/cart', cartRouter);
 app.use('/api/purchase', purchaseRouter);
 app.use('/stores', storeRouter);
+
+// 임시 라우터 (Product 라우터 구현 후 삭제 예정)
+// -------------------------------------
+// 상품 리뷰 목록 조회 (페이지네이션 포함/상품ID)
+app.get('/product/:productId/reviews', reviewController.getReviews);
+
+// 상품 리뷰 작성 (상품ID)
+app.post(
+  '/product/:productId/reviews',
+  authMiddleware,
+  reviewController.createReview,
+);
+// -------------------------------------
 
 // 에러 핸들러
 app.use(errorHandler);

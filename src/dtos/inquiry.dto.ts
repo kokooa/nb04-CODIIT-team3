@@ -75,7 +75,7 @@ interface InquiryReplyDto {
 }
 
 export interface FetchInquiryDetailParamsDto {
-  userId: string;
+  userId: string | undefined;
   inquiryId: string;
 }
 

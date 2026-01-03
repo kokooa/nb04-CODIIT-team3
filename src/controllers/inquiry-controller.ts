@@ -38,11 +38,11 @@ export class InquiryController {
         return next(new HttpError('유효하지 않은 status 값입니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      }
+    // User 정보 받아오기 및 유효성 검증
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new HttpError('인증이 필요합니다.', 401));
+    }
 
       // DTO 생성
       const params: Omit<FetchInquiriesParamsDto, 'userRole'> = {
@@ -77,12 +77,12 @@ export class InquiryController {
         return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      let userId = undefined;
-      userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      /* if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      } */
+    // User 정보 받아오기 및 유효성 검증
+    let userId = undefined;
+    userId = req.user?.id;
+    /* if (!userId) {
+      return next(new HttpError('인증이 필요합니다.', 401));
+    } */
 
       // DTO 생성
       const params: FetchInquiryDetailParamsDto = {
@@ -116,11 +116,11 @@ export class InquiryController {
         return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      }
+  // User 정보 받아오기 및 유효성 검증
+  const userId = req.user?.id;
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
 
       body.inquiryId = inquiryId;
       body.userId = userId;
@@ -146,11 +146,11 @@ export class InquiryController {
         return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      }
+  // User 정보 받아오기 및 유효성 검증
+  const userId = req.user?.id;
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
 
       const params: DeleteInquiryParamsDto = {
         userId,
@@ -180,11 +180,11 @@ export class InquiryController {
         return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      }
+  // User 정보 받아오기 및 유효성 검증
+  const userId = req.user?.id;
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
 
       body.inquiryId = inquiryId;
       body.userId = userId;
@@ -214,11 +214,11 @@ export class InquiryController {
         return next(new HttpError('replyId가 없거나 잘못되었습니다.', 400));
       }
 
-      // User 정보 받아오기 및 유효성 검증
-      const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
-      if (!userId) {
-        return next(new HttpError('인증이 필요합니다.', 401));
-      }
+  // User 정보 받아오기 및 유효성 검증
+  const userId = req.user?.id;
+  if (!userId) {
+    return next(new HttpError('인증이 필요합니다.', 401));
+  }
 
       const params: UpdateInquiryReplyParamsDto = {
         userId,

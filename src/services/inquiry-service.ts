@@ -63,8 +63,21 @@ export const getInquiryDetail = async (
     inquiryDetail.isSecret &&
     inquiryDetail.userId !== userId &&
     inquiryDetail.product.store.sellerId !== userId
-  )
+  ) {
+    /* console.log(
+      '비밀글 접근 차단\nisSecret:',
+      inquiryDetail.isSecret,
+      '\nuserId:',
+      inquiryDetail.userId,
+      ':',
+      userId,
+      '\nsellerId:',
+      inquiryDetail.product.store.sellerId,
+      ':',
+      userId,
+    ); */
     throw new HttpError('비밀글입니다.', 403);
+  }
 
   const { reply, user, status, product, ...rest } = inquiryDetail;
 
