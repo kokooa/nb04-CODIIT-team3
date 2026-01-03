@@ -7,3 +7,5 @@ prisma/migrations
 /generated/prisma
 /front
 /dist
+
+/plans
