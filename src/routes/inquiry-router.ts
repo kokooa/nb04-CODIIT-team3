@@ -1,7 +1,8 @@
 import express from 'express';
-import * as inquiryController from '../controllers/inquiry-controller.js';
+import { InquiryController } from '../controllers/inquiry-controller.js';
 
 const router = express.Router();
+const inquiryController = new InquiryController();
 
 // 내 문의 조회 (판매자, 구매자 공용)
 router.get('/', inquiryController.getInquiries); // 인증 미들웨어 추가 예정

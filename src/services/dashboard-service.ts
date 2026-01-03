@@ -63,7 +63,7 @@ const getDates = (period: 'today' | 'week' | 'month' | 'year') => {
 
 class DashboardService {
 
-  private async getSalesDataForPeriod(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.OrderSales> {
+  private async getSalesDataForPeriod(sellerId: string, startDate: Date, endDate: Date): Promise<DashboardTypes.OrderSales> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return { totalOrders: 0, totalSales: 0 };
 
@@ -82,11 +82,11 @@ class DashboardService {
       return { totalOrders, totalSales };
   }
 
-  private async getTopProducts(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.TopSale[]> {
+  private async getTopProducts(sellerId: string, startDate: Date, endDate: Date): Promise<DashboardTypes.TopSale[]> {
       const store = await prisma.store.findUnique({ where: { sellerId } });
       if (!store) return [];
 
-      const rawTopProducts = await prisma.$queryRaw<Array<{productId: number, totalQuantity: BigInt}>>`
+      const rawTopProducts = await prisma.$queryRaw<Array<{productId: string, totalQuantity: BigInt}>>`
         SELECT
             oi."productId",
             SUM(oi.quantity) AS "totalQuantity"
@@ -132,7 +132,7 @@ class DashboardService {
       return topSales;
   }
 
-    private async getSalesByPriceRange(sellerId: number, startDate: Date, endDate: Date): Promise<DashboardTypes.PriceRange[]> {
+    private async getSalesByPriceRange(sellerId: string, startDate: Date, endDate: Date): Promise<DashboardTypes.PriceRange[]> {
         const store = await prisma.store.findUnique({ where: { sellerId } });
         if (!store) return [];
 
@@ -179,7 +179,7 @@ class DashboardService {
         });
     }
 
-  public async getAggregatedDashboardData(sellerId: number): Promise<DashboardTypes.SalesData> {
+  public async getAggregatedDashboardData(sellerId: string): Promise<DashboardTypes.SalesData> {
     const periods: ('today' | 'week' | 'month' | 'year')[] = ['today', 'week', 'month', 'year'];
     const periodDataPromises = periods.map(async (period): Promise<[string, DashboardTypes.PeriodData]> => {
         const { startCurrent, endCurrent, startPrevious, endPrevious } = getDates(period);
