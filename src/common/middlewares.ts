@@ -1,5 +1,5 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
-import prisma from '../../prisma/prisma.js';
+import prisma from '../common/prisma.js';
 import type { Request, Response, NextFunction } from 'express';
 import type { UserRole } from '@prisma/client';
 
@@ -46,7 +46,6 @@ export function authMiddleware(
       email: decoded.email,
       type: decoded.type,
     };
-
     next();
   } catch (err: unknown) {
     console.error('JWT 검증 실패:', err instanceof Error ? err.message : err);

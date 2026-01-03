@@ -1,11 +1,18 @@
 node_modules
 # Keep environment variables out of version control
 .env
+.env.prod
+.secrets
+todo
+
+todo
+secrets
 
 prisma/migrations
 
 /generated/prisma
 /front
 /dist
+/uploads
 
 /plans

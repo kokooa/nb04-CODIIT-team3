@@ -5,7 +5,7 @@ import {
   updateUserService,
 } from '../services/user-service.js';
 import type { Request, Response, NextFunction } from 'express';
-import { HttpError } from '../../utils/error-handler.js';
+import { HttpError } from '../utils/error-handler.js';
 import { getUserPointService } from '../services/user-service.js';
 
 // 회원가입

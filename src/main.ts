@@ -1,18 +1,18 @@
 import app from './app.js';
 import prisma from './common/prisma.js';
-import http from 'node:http';
 import dotenv from 'dotenv';
+dotenv.config(); //환경 변수
 
-dotenv.config();
+const PORT = Number(process.env.PORT) || 4000; // 포트를 4000으로 통일하거나 .env 설정을 따름
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}..`);
 });
 
 // Graceful shutdown
-const gracefulShutdown = async (server: http.Server) => {
+const gracefulShutdown = () => {
+  console.log('Gracefully shutting down...');
+
   server.close(async () => {
     console.log('Closed out remaining connections.');
 
