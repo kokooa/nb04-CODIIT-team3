@@ -73,7 +73,7 @@ export class ProductService {
     return this.productRepository.getProducts(filter, orderBy, skip, take);
   }
 
-  async updateProduct(productId: number, body: UpdateProductDto) {
+  async updateProduct(productId: string, body: UpdateProductDto) {
     const {
       name,
       price,
@@ -112,11 +112,11 @@ export class ProductService {
     return this.productRepository.updateProduct(productId, data);
   }
 
-  async getProductById(productId: number) {
+  async getProductById(productId: string) {
     return this.productRepository.findProductById(productId);
   }
 
-  async deleteProduct(productId: number) {
+  async deleteProduct(productId: string) {
     return this.productRepository.deleteProduct(productId);
   }
 }

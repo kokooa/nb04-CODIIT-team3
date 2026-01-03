@@ -20,14 +20,14 @@ export class ProductRepository {
     });
   }
 
-  async findProductById(productId: number) {
+  async findProductById(productId: string) {
     return prisma.product.findUnique({
       where: { id: productId },
       include: { stocks: true }
     });
   }
 
-  async updateProduct(productId: number, data: any) {
+  async updateProduct(productId: string, data: any) {
     return prisma.product.update({
       where: { id: productId },
       data,
@@ -35,14 +35,14 @@ export class ProductRepository {
     });
   }
 
-  async deleteProduct(productId: number) {
+  async deleteProduct(productId: string) {
     return prisma.product.delete({
       where: { id: productId }
     });
   }
 
-  async deleteStocksByProduct(productId: number) {
-    return prisma.stock.deleteMany({
+  async deleteStocksByProduct(productId: string) {
+    return prisma.productStock.deleteMany({
       where: { productId }
     });
   }

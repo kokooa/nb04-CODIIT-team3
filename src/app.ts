@@ -11,12 +11,12 @@ import { storeRouter } from './routes/store-router.js';
 import { errorHandler } from './common/error-handler.js';
 import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
-// prisma import는 제거해도 됩니다 (main.ts에서 관리하므로)
+import { authMiddleware } from './common/middlewares.js';
 
 // 임시 라우터용 (Product review)
 // --------------------------
 import * as reviewController from './controllers/review-controller.js';
-import { authMiddleware } from './common/middlewares.js';
+import productRouter from './routes/product-router.js';
 // --------------------------
 
 const app = express();
@@ -52,6 +52,7 @@ app.use('/review', reviewRoutes);
 app.use('/api/cart', cartRouter);
 app.use('/api/purchase', purchaseRouter);
 app.use('/stores', storeRouter);
+app.use('/products', productRouter);
 
 // 임시 라우터 (Product 라우터 구현 후 삭제 예정)
 // -------------------------------------
