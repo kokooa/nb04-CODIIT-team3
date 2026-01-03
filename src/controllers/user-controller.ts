@@ -11,7 +11,12 @@ import { getUserPointService } from '../services/user-service.js';
 // 회원가입
 export async function signup(req: Request, res: Response, next: NextFunction) {
   try {
-    const { type, name, email, password } = req.body;
+    const { type = 'BUYER', name, email, password } = req.body;
+
+    const vaildTypes = ['BUYER', 'SELLER'];
+    if (!vaildTypes.includes(type)) {
+      throw new Error('유효하지 않은 가입 유형입니다.');
+    }
 
     const user = await signupService(type, name, email, password);
 
