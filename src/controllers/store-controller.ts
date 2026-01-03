@@ -67,9 +67,9 @@ export class StoreController {
    */
   async getStoreDetail(req: Request, res: Response, next: NextFunction) {
     try {
-      const storeId = parseInt(req.params.storeId as string);
+      const storeId = req.params.storeId;
 
-      if (isNaN(storeId)) {
+      if (!storeId) {
         return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
@@ -91,9 +91,13 @@ export class StoreController {
    */
   async updateStore(req: Request, res: Response, next: NextFunction) {
     try {
-      const storeId = parseInt(req.params.storeId as string);
+      const storeId = req.params.storeId;
       const { name, address, phoneNumber, description } = req.body;
       let storeImageUrl: string | undefined;
+
+      if (!storeId) {
+        return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
+      }
 
       if (req.file) {
         storeImageUrl = `/uploads/${req.file.filename}`;
@@ -126,9 +130,9 @@ export class StoreController {
   async addFavoriteStore(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const storeId = parseInt(req.params.storeId as string);
+      const storeId = req.params.storeId;
 
-      if (isNaN(storeId)) {
+      if (!storeId) {
         return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
@@ -150,9 +154,9 @@ export class StoreController {
   async removeFavoriteStore(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const storeId = parseInt(req.params.storeId as string);
+      const storeId = req.params.storeId;
 
-      if (isNaN(storeId)) {
+      if (!storeId) {
         return res.status(400).json({ message: '유효하지 않은 스토어 ID 형식입니다.' });
       }
 
