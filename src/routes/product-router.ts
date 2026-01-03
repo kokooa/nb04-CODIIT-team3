@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { Router } from 'express';
 // import { ProductController } from "../controllers/product-controller.js";
-import { InquiryController } from "../controllers/inquiry-controller.js";
+import { InquiryController } from '../controllers/inquiry-controller.js';
 
 const router = Router();
 
@@ -15,6 +15,9 @@ const inquiryController = new InquiryController();
 
 // TODO: 문의 기능도 추가 많이 되어야함.
 // router.post("/api/products/:productId/inquiries", inquiryController.createInquiry);
-router.get("/api/products/:productId/inquiries", inquiryController.getInquiries);
+router.get(
+  '/api/products/:productId/inquiries',
+  inquiryController.getInquiries,
+);
 
 export default router;
