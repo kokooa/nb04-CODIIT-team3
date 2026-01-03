@@ -1,4 +1,8 @@
-import type { Request, Response, NextFunction } from 'express';
+// src/controllers/inquiry-controller.ts
+import express from 'express';
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
 import type {
   FetchInquiriesParamsDto,
   InquiryListResponseDto,
@@ -13,29 +17,26 @@ import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/http-error.js';
 import * as inquiryService from '../services/inquiry-service.js';
 
-/**
- * 내 문의 조회 (판매자, 구매자 공용)
- * getInquiries query parameters
- * @param page number
- * @param pageSize number
- * @param status? string: 'WaitingAnswer' | 'CompletedAnswer'
- */
-export const getInquiries = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { page, pageSize, status } = req.query as {
-      page: string;
-      pageSize: string;
-      status?: InquiryStatus;
-    };
+export class InquiryController {
+  /**
+   * 내 문의 조회 (판매자, 구매자 공용)
+   * getInquiries query parameters
+   * @param page number
+   * @param pageSize number
+   * @param status? string: 'WaitingAnswer' | 'CompletedAnswer'
+   */
+  async getInquiries(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { page, pageSize, status } = req.query as {
+        page: string;
+        pageSize: string;
+        status?: InquiryStatus;
+      };
 
-    // status 값 유효성 검증
-    if (status && !Object.values(InquiryStatus).includes(status)) {
-      return next(new HttpError('유효하지 않은 status 값입니다.', 400));
-    }
+      // status 값 유효성 검증
+      if (status && !Object.values(InquiryStatus).includes(status)) {
+        return next(new HttpError('유효하지 않은 status 값입니다.', 400));
+      }
 
     // User 정보 받아오기 및 유효성 검증
     const userId = req.user?.id;
@@ -43,42 +44,38 @@ export const getInquiries = async (
       return next(new HttpError('인증이 필요합니다.', 401));
     }
 
-    // DTO 생성
-    const params: Omit<FetchInquiriesParamsDto, 'userRole'> = {
-      page: parseInt(page || '1', 10) || 1,
-      pageSize: parseInt(pageSize || '10', 10) || 10,
-      userId,
-      ...(status && { status }),
-    };
+      // DTO 생성
+      const params: Omit<FetchInquiriesParamsDto, 'userRole'> = {
+        page: parseInt(page || '1', 10) || 1,
+        pageSize: parseInt(pageSize || '10', 10) || 10,
+        userId,
+        ...(status && { status }),
+      };
 
-    // InquiryListResponseDto 받아오기
-    const result: InquiryListResponseDto =
-      await inquiryService.getInquiries(params);
+      // InquiryListResponseDto 받아오기
+      const result: InquiryListResponseDto =
+        await inquiryService.getInquiries(params);
 
-    // 응답 반환
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * 문의 상세 조회
- * getInquiries query parameters
- * @param inquiryId string
- */
-export const getInquiryDetail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { inquiryId } = req.params;
-
-    // 파라미터 유효성 검증
-    if (!inquiryId || inquiryId.trim() === '') {
-      return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+      // 응답 반환
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
     }
+  }
+
+  /**
+   * 문의 상세 조회
+   * getInquiries query parameters
+   * @param inquiryId string
+   */
+  async getInquiryDetail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { inquiryId } = req.params;
+
+      // 파라미터 유효성 검증
+      if (!inquiryId || inquiryId.trim() === '') {
+        return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+      }
 
     // User 정보 받아오기 및 유효성 검증
     let userId = undefined;
@@ -87,40 +84,37 @@ export const getInquiryDetail = async (
       return next(new HttpError('인증이 필요합니다.', 401));
     } */
 
-    // DTO 생성
-    const params: FetchInquiryDetailParamsDto = {
-      userId,
-      inquiryId,
-    };
+      // DTO 생성
+      const params: FetchInquiryDetailParamsDto = {
+        userId,
+        inquiryId,
+      };
 
-    // 문의 상세 조회
-    const result: InquiryDetailResponseDto =
-      await inquiryService.getInquiryDetail(params);
+      // 문의 상세 조회
+      const result: InquiryDetailResponseDto =
+        await inquiryService.getInquiryDetail(params);
 
-    // 응답 반환
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      // 응답 반환
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-};
 
-/**
- * 문의 수정
- * @param inquiryId string
- * @body title, content, isSecret
- */
-export const updateInquiry = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const body = req.body as UpdateInquiryParamsDto;
-  const { inquiryId } = req.params;
+  /**
+   * 문의 수정
+   * @param inquiryId string
+   * @body title, content, isSecret
+   */
+  async updateInquiry(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = req.body as UpdateInquiryParamsDto;
+      const { inquiryId } = req.params;
 
-  // 파라미터 유효성 검증
-  if (!inquiryId) {
-    return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
-  }
+      // 파라미터 유효성 검증
+      if (!inquiryId) {
+        return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+      }
 
   // User 정보 받아오기 및 유효성 검증
   const userId = req.user?.id;
@@ -128,33 +122,29 @@ export const updateInquiry = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  body.inquiryId = inquiryId;
-  body.userId = userId;
+      body.inquiryId = inquiryId;
+      body.userId = userId;
 
-  try {
-    const result = await inquiryService.updateInquiry(body);
+      const result = await inquiryService.updateInquiry(body);
 
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-};
 
-/**
- * 문의 삭제
- * @param inquiryId string
- */
-export const deleteInquiry = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const { inquiryId } = req.params;
+  /**
+   * 문의 삭제
+   * @param inquiryId string
+   */
+  async deleteInquiry(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { inquiryId } = req.params;
 
-  // 파라미터 유효성 검증
-  if (!inquiryId) {
-    return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
-  }
+      // 파라미터 유효성 검증
+      if (!inquiryId) {
+        return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+      }
 
   // User 정보 받아오기 및 유효성 검증
   const userId = req.user?.id;
@@ -162,41 +152,33 @@ export const deleteInquiry = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  const params: DeleteInquiryParamsDto = {
-    userId,
-    inquiryId,
-  };
+      const params: DeleteInquiryParamsDto = {
+        userId,
+        inquiryId,
+      };
 
-  try {
-    const result = await inquiryService.deleteInquiry(params);
+      const result = await inquiryService.deleteInquiry(params);
 
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-};
 
-/* export const getInquiryReplyDetail = (req: Request, res: Response) => {
-  // 문의 답변 상세 조회
-}; */
+  /**
+   * createInquiryReply
+   * @param body CreateInquiryReplyParamsDto
+   * @param inquiryId string
+   */
+  async createInquiryReply(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = req.body as CreateInquiryReplyParamsDto;
+      const { inquiryId } = req.params;
 
-/**
- * createInquiryReply
- * @param body CreateInquiryReplyParamsDto
- * @param inquiryId string
- */
-export const createInquiryReply = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const body = req.body as CreateInquiryReplyParamsDto;
-  const { inquiryId } = req.params;
-
-  // 파라미터 유효성 검증
-  if (!inquiryId) {
-    return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
-  }
+      // 파라미터 유효성 검증
+      if (!inquiryId) {
+        return next(new HttpError('inquiryId가 없거나 잘못되었습니다.', 400));
+      }
 
   // User 정보 받아오기 및 유효성 검증
   const userId = req.user?.id;
@@ -204,37 +186,33 @@ export const createInquiryReply = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  body.inquiryId = inquiryId;
-  body.userId = userId;
+      body.inquiryId = inquiryId;
+      body.userId = userId;
 
-  try {
-    const result = await inquiryService.createInquiryReply(body);
+      const result = await inquiryService.createInquiryReply(body);
 
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-};
 
-/**
- * updateInquiryReply
- * @param content string
- * @param replyId string
- */
-export const updateInquiryReply = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const { content } = req.body as {
-    content: string;
-  };
-  const { replyId } = req.params;
+  /**
+   * updateInquiryReply
+   * @param content string
+   * @param replyId string
+   */
+  async updateInquiryReply(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { content } = req.body as {
+        content: string;
+      };
+      const { replyId } = req.params;
 
-  // 파라미터 유효성 검증
-  if (!replyId) {
-    return next(new HttpError('replyId가 없거나 잘못되었습니다.', 400));
-  }
+      // 파라미터 유효성 검증
+      if (!replyId) {
+        return next(new HttpError('replyId가 없거나 잘못되었습니다.', 400));
+      }
 
   // User 정보 받아오기 및 유효성 검증
   const userId = req.user?.id;
@@ -242,17 +220,17 @@ export const updateInquiryReply = async (
     return next(new HttpError('인증이 필요합니다.', 401));
   }
 
-  const params: UpdateInquiryReplyParamsDto = {
-    userId,
-    replyId,
-    content,
-  };
+      const params: UpdateInquiryReplyParamsDto = {
+        userId,
+        replyId,
+        content,
+      };
 
-  try {
-    const result = await inquiryService.updateInquiryReply(params);
+      const result = await inquiryService.updateInquiryReply(params);
 
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-};
+}

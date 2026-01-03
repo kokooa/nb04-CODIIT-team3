@@ -51,6 +51,7 @@ app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
 app.use('/api/cart', cartRouter);
 app.use('/api/purchase', purchaseRouter);
+app.use('/stores', storeRouter);
 
 // 임시 라우터 (Product 라우터 구현 후 삭제 예정)
 // -------------------------------------

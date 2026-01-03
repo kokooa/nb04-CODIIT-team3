@@ -1,5 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
-import { loginService, reloadService } from '../services/auth-service.js';
+import {
+  loginService,
+  logoutService,
+  reloadService,
+} from '../services/auth-service.js';
 import { HttpError } from '../utils/error-handler.js';
 import { mapUserToClientResponse } from '../utils/user-mapper.js';
 
@@ -62,6 +66,8 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     if (!userId) {
       throw new HttpError('인증이 필요합니다.', 401);
     }
+
+    await logoutService(userId);
 
     res.status(200).json({
       message: '성공적으로 로그아웃 되었습니다.',
