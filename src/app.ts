@@ -7,7 +7,7 @@ import metadataRouter from './routes/metadata-router.js';
 import notificationRouter from './routes/notification.router.js';
 import inquiryRoutes from './routes/inquiry-router.js';
 import reviewRoutes from './routes/review-router.js';
-import { storeRouter } from './routes/store-router.js';
+import storeRouter from './routes/store-router.js';
 import { errorHandler } from './common/error-handler.js';
 import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
