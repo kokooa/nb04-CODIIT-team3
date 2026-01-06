@@ -95,6 +95,13 @@ export async function updateUserService(
   }
 
   if (password) {
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      throw new HttpError(
+        '새 비밀번호는 현재 비밀번호와 다르게 설정해야 합니다.',
+        400,
+      );
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     updateData.password = hashedPassword;
   }

@@ -40,12 +40,12 @@ export async function updateUser(
 
     const { currentPassword, name, image, password } = req.body;
 
-    if (password && currentPassword) {
-      throw new HttpError('현재 비밀번호를 입력해주세요', 400);
-    }
-
     if (!name && !image && !password) {
       throw new HttpError('수정할 정보를 입력해주세요', 400);
+    }
+
+    if (!currentPassword) {
+      throw new HttpError('정보를 수정하려면 현재 비밀번호가 필요합니다.', 400);
     }
 
     const profile = await updateUserService(
