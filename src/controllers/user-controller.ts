@@ -40,7 +40,7 @@ export async function updateUser(
 
     const { currentPassword, name, image, password } = req.body;
 
-    if (password && currentPassword) {
+    if (password && !currentPassword) {
       throw new HttpError('현재 비밀번호를 입력해주세요', 400);
     }
 
