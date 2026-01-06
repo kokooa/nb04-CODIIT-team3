@@ -23,8 +23,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:3000', // 프론트엔드 포트
-    // origin: 'http://ec2-54-180-30-149.ap-northeast-2.compute.amazonaws.com', // 배포용 프론트엔드 도메인
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   }),
 );
