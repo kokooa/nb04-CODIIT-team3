@@ -39,8 +39,8 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 # Prisma 클라이언트 생성
 RUN npx prisma generate
 
-# 포트 3000번을 노출
-EXPOSE 3000
+# 포트 4000번을 노출
+EXPOSE 4000
 
 # main.js 실행
 CMD [ "npm", "run", "start" ]
