@@ -42,5 +42,5 @@ RUN npx prisma generate
 # 포트 4000번을 노출
 EXPOSE 4000
 
-# main.js 실행
-CMD [ "npm", "run", "start" ]
+# main.js 실행 (docker-compose.yml에서 덮어씀)
+# CMD [ "npm", "run", "start" ]

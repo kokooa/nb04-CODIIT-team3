@@ -5,13 +5,7 @@ node_modules
 .secrets
 todo
 
-todo
-secrets
-
-prisma/migrations
-
 /generated/prisma
-/front
 /dist
 /uploads
 
