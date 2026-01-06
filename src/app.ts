@@ -7,7 +7,7 @@ import metadataRouter from './routes/metadata-router.js';
 import notificationRouter from './routes/notification.router.js';
 import inquiryRoutes from './routes/inquiry-router.js';
 import reviewRoutes from './routes/review-router.js';
-import { storeRouter } from './routes/store-router.js';
+import storeRouter from './routes/store-router.js';
 import { errorHandler } from './common/error-handler.js';
 import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
@@ -23,7 +23,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:3001', // 프론트엔드 포트
+    origin: 'http://localhost:3000', // 프론트엔드 포트
     // origin: 'http://ec2-54-180-30-149.ap-northeast-2.compute.amazonaws.com', // 배포용 프론트엔드 도메인
     credentials: true,
   }),
