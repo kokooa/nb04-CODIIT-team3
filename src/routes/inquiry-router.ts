@@ -1,9 +1,8 @@
 import express from 'express';
-import { InquiryController } from '../controllers/inquiry-controller.js';
+import * as inquiryController from '../controllers/inquiry-controller.js';
 import { authMiddleware } from '../common/middlewares.js';
 
 const router = express.Router();
-const inquiryController = new InquiryController();
 
 // 내 문의 조회 (판매자, 구매자 공용)
 router.get('/', authMiddleware, inquiryController.getInquiries);
