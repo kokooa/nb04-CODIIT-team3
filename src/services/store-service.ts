@@ -1,8 +1,12 @@
 // src/services/store-service.ts
 import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
+import { StoreRepository } from '../repositories/store-repository.js';
+import { ProductRepository } from '../repositories/product-repository.js';
 
 const prisma = new PrismaClient();
+const storeRepository = new StoreRepository();
+const productRepository = new ProductRepository();
 
 export interface StoreCreationData {
   name: string;
@@ -88,7 +92,7 @@ export class StoreService {
     const startOfMonth = dayjs().startOf('month').toDate();
     const endOfMonth = dayjs().endOf('month').toDate();
     const monthFavoriteCount = store.favorites.filter(
-      fav => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth,
+      (fav) => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth,
     ).length;
 
     // 백엔드 필드를 프론트엔드에서 예상하는 필드로 매핑
@@ -102,6 +106,53 @@ export class StoreService {
       monthFavoriteCount,
       totalSoldCount,
     };
+  }
+
+  async getMyStoreWithProducts(
+    userId: string,
+    page: number,
+    limit: number,
+  ) {
+    const store = await storeRepository.findStoreByUserId(userId);
+
+    if (!store) {
+      return null;
+    }
+
+    const { products, totalCount } = await productRepository.getProducts(
+      (page - 1) * limit,
+      limit,
+      { storeId: store.id },
+      { createdAt: 'desc' },
+    );
+
+    const formattedProducts = products.map((product) => {
+      const stock = product.stocks.reduce(
+        (acc, cur) => acc + cur.quantity,
+        0,
+      );
+      const isSoldOut = stock === 0;
+      const isDiscount =
+        product.discountPrice !== null &&
+        product.discountPrice !== undefined &&
+        product.discountStart &&
+        product.discountEnd &&
+        dayjs().isAfter(dayjs(product.discountStart)) &&
+        dayjs().isBefore(dayjs(product.discountEnd));
+
+      return {
+        id: product.id,
+        image: product.image,
+        name: product.name,
+        price: product.price,
+        createdAt: product.createdAt,
+        isSoldOut,
+        stock,
+        isDiscount,
+      };
+    });
+
+    return { list: formattedProducts, totalCount };
   }
 
   /**
@@ -241,3 +292,4 @@ export class StoreService {
     });
   }
 }
+
