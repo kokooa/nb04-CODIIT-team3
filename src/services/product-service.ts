@@ -61,16 +61,14 @@ export class ProductService {
       discountStartTime: product.discountStart,
       discountEndTime: product.discountEnd,
       reviewsCount: 0,
-      reviews: [
-        {
-          rate1Length: 0,
-          rate2Length: 0,
-          rate3Length: 0,
-          rate4Length: 0,
-          rate5Length: 0,
-          sumScore: 0,
-        },
-      ],
+      reviews: {
+        rate1Length: 0,
+        rate2Length: 0,
+        rate3Length: 0,
+        rate4Length: 0,
+        rate5Length: 0,
+        sumScore: 0,
+      },
       inquiries: [],
       category: {
         name: product.category.toLowerCase(), // "BOTTOM" -> "bottom"
@@ -262,7 +260,7 @@ export class ProductService {
       reviewsRating: reviewsRating,
       reviewsCount: reviewsCount,
       // 요청하신 대로 통계 객체를 배열 안에 넣음
-      reviews: [reviewStats],
+      reviews: reviewStats,
 
       storeId: product.storeId,
       storeName: product.store?.name || '알 수 없음',
