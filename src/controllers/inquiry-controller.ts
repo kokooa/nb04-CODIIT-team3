@@ -8,6 +8,10 @@ import type {
   CreateInquiryReplyParamsDto,
   UpdateInquiryReplyParamsDto,
   DeleteInquiryParamsDto,
+  FetchInquiriesForProductParamsDto,
+  InquiryListForProductResponseDto,
+  CreateInquiryForProductParamsDto,
+  CreateInquiryForProductResponseDto,
 } from '../dtos/inquiry.dto.js';
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/http-error.js';
@@ -252,6 +256,92 @@ export const updateInquiryReply = async (
     const result = await inquiryService.updateInquiryReply(params);
 
     res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/************************************ For product route **************************************/
+
+export const getInquiriesForProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { productId } = req.params;
+
+    const { page, pageSize, sort, status } = req.query as {
+      page: string;
+      pageSize: string;
+      sort: string;
+      status: InquiryStatus;
+    };
+
+    // 파라미터 유효성 검증
+    if (!productId || productId.trim() === '') {
+      return next(new HttpError('productId가 없거나 잘못되었습니다.', 400));
+    }
+
+    // DTO 생성
+    const params: FetchInquiriesForProductParamsDto = {
+      productId,
+      page: parseInt(page) || 1,
+      pageSize: parseInt(pageSize) || 10,
+      sort,
+      status,
+    };
+
+    // InquiryListResponseDto 받아오기
+    const result: InquiryListForProductResponseDto =
+      await inquiryService.getInquiriesForProduct(params);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createInquiryForProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { productId } = req.params;
+
+    const { title, content, isSecret } = req.body as {
+      title: string;
+      content: string;
+      isSecret: boolean;
+    };
+
+    // 파라미터 유효성 검증
+    if (!productId || productId.trim() === '') {
+      return next(new HttpError('productId가 없거나 잘못되었습니다.', 400));
+    }
+
+    // User 정보 받아오기 및 유효성 검증
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new HttpError('인증이 필요합니다.', 401));
+    }
+
+    // DTO 생성
+    const params: CreateInquiryForProductParamsDto = {
+      productId,
+      userId,
+      title,
+      content,
+      isSecret,
+    };
+
+    // InquiryListResponseDto 받아오기
+    const result: CreateInquiryForProductResponseDto =
+      await inquiryService.createInquiryForProduct(params);
+
+    // 응답 반환
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
