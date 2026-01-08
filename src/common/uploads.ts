@@ -37,5 +37,5 @@ export function buildFileUrl(filePath: string | null): string | null {
     return filePath;
   }
   // 환경 변수에서 API 기본 URL을 가져와 전체 URL 구성
-  return `${process.env.API_BASE_URL}${filePath}`;
+  return `${process.env.API_BASE_URL || 'http://localhost:4000'}${filePath}`;
 }
