@@ -2,6 +2,8 @@ import { PrismaClient, OrderStatus } from '@prisma/client';
 import { NotificationService } from './notification-service.js';
 
 const prisma = new PrismaClient();
+// NotificationService 인스턴스 생성
+const notificationService = new NotificationService();
 
 export const PurchaseService = {
   async createOrder(userId: string, orderData: any) {
@@ -31,11 +33,11 @@ export const PurchaseService = {
 
         // 3. 품절 시 알림 생성
         if (updatedStock.quantity === 0) {
-          await NotificationService.createNotification(
+          // 인스턴스를 사용하고, 정의된 메서드 형식에 맞춰 호출합니다.
+          // notification-service.ts에 작성한 메서드와 일치시킵니다.
+          await notificationService.createOrderNotification(
             userId,
-            'SOLD_OUT',
-            `상품이 품절되었습니다.`,
-            tx,
+            `품절된 상품 ID: ${item.productId}`,
           );
         }
 

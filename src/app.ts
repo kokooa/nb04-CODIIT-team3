@@ -3,7 +3,7 @@ import cors from 'cors';
 import userRouter from './routes/user-router.js';
 import authRouter from './routes/auth-router.js';
 import cookieParser from 'cookie-parser';
-import metadataRouter from './routes/metada-router.js';
+import metadataRouter from './routes/metadata-router.js';
 import notificationRouter from './routes/notification.router.js';
 import inquiryRoutes from './routes/inquiry-router.js';
 import reviewRoutes from './routes/review-router.js';
