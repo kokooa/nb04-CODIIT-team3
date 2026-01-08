@@ -315,6 +315,17 @@ export class ProductService {
   }
 
   async deleteProduct(productId: string) {
+    // 1. (권장) 삭제 전에 상품이 존재하는지 먼저 확인
+    // Repository에 findById 같은 조회 메서드가 있다고 가정합니다.
+    const existingProduct =
+      await this.productRepository.findProductById(productId);
+
+    if (!existingProduct) {
+      // 상품이 없으면 에러를 던짐 (메시지는 컨트롤러에서 구분하기 위함)
+      throw new Error('NOT_FOUND');
+    }
+
+    // 2. 존재하면 삭제 진행
     return this.productRepository.deleteProduct(productId);
   }
 }
