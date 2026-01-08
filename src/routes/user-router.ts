@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { upload } from '../common/uploads.js';
 import {
+  getMyFavoriteStores,
   getMyPointInfo,
   getUser,
   signup,
