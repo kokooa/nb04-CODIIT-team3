@@ -19,208 +19,158 @@ import type {
   CreateInquiryForProductResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repository.js';
+// 알림 서비스 연동
+import { NotificationService } from './notification-service.js';
+
+const notificationService = new NotificationService();
+
+/**
+ * [공통] 응답 데이터 포맷팅 함수 (코드 중복 제거)
+ */
+const formatInquiryResponse = (inquiry: any) => {
+  if (!inquiry) return null;
+  const { reply, status, ...restItem } = inquiry;
+
+  if (!reply) {
+    return { ...restItem, status: status as InquiryStatus, reply: null };
+  }
+
+  const { seller, sellerId, ...restReply } = reply;
+  return {
+    ...restItem,
+    status: status as InquiryStatus,
+    reply: { ...restReply, userId: sellerId, user: seller },
+  };
+};
 
 /**
  * 내 문의 조회 (판매자, 구매자 공용)
- * @param params
- * @returns
  */
 export const getInquiries = async (
   params: Omit<FetchInquiriesParamsDto, 'userRole'>,
 ): Promise<InquiryListResponseDto> => {
-  // const { page, pageSize, status, userId } = params;
-
-  // 사용자 역할 받아오기
   const userRole = await inquiryRepository.getUserRole(params.userId);
-
-  // params에 userRole 추가
   const fetchParams = { ...params, userRole };
 
-  // 문의 목록 받아오기
   const inquiryItems = await inquiryRepository.fetchInquiries(fetchParams);
-
   const totalCount = await inquiryRepository.countTotalInquiries(
     params.userId,
     userRole,
   );
 
   return {
-    list: inquiryItems,
+    list: inquiryItems.map(item => formatInquiryResponse(item)),
     totalCount,
   };
 };
 
 /**
- * getInquiryDetail
- * @param params FetchInquiryDetailParamsDto
+ * 문의 상세 조회 (비밀글 권한 체크 포함)
  */
 export const getInquiryDetail = async (
   params: FetchInquiryDetailParamsDto,
 ): Promise<InquiryDetailResponseDto> => {
   const { userId, inquiryId } = params;
-
   const inquiryDetail =
     await inquiryRepository.fetchInquiryDetailById(inquiryId);
 
-  // 비밀글이면 구매자/판매자만 조회 가능
+  // 비밀글 권한 체크: 작성자 본인 혹은 해당 상품의 판매자(관리자)만 가능
   if (
     inquiryDetail.isSecret &&
     inquiryDetail.userId !== userId &&
     inquiryDetail.product.store.sellerId !== userId
   ) {
-    /* console.log(
-      '비밀글 접근 차단\nisSecret:',
-      inquiryDetail.isSecret,
-      '\nuserId:',
-      inquiryDetail.userId,
-      ':',
-      userId,
-      '\nsellerId:',
-      inquiryDetail.product.store.sellerId,
-      ':',
-      userId,
-    ); */
-    throw new HttpError('비밀글입니다.', 403);
+    throw new HttpError(
+      '비밀글입니다. 작성자와 판매자만 조회할 수 있습니다.',
+      403,
+    );
   }
 
-  const { reply, user, status, product, ...rest } = inquiryDetail;
-
-  if (reply) {
-    const { seller, ...replyRest } = reply;
-    return {
-      ...rest,
-      status: status as InquiryStatus,
-      reply: {
-        ...replyRest,
-        user: seller,
-      },
-    };
-  }
-
-  return { ...rest, status: status as InquiryStatus };
+  return formatInquiryResponse(inquiryDetail) as InquiryDetailResponseDto;
 };
 
 /**
- * updateInquiry
- * @param body UpdateInquiryParamsDto
- * @returns UpdateInquiryResponseDto
+ * 문의 수정
  */
 export const updateInquiry = async (
   body: UpdateInquiryParamsDto,
 ): Promise<UpdateInquiryResponseDto> => {
-  // 문의 존재 여부 및 답변 여부 확인
   const inquiry = await inquiryRepository.fetchInquiryDetailById(
     body.inquiryId,
   );
 
-  // 권한 확인
   if (inquiry.userId !== body.userId) {
     throw new HttpError('본인의 문의만 수정할 수 있습니다.', 403);
   }
 
-  // 이미 답변이 달린 문의면 수정 불가
   if (inquiry.reply) {
-    throw new HttpError('이미 답변이 달린 문의입니다.', 400);
+    throw new HttpError('이미 답변이 달린 문의는 수정할 수 없습니다.', 400);
   }
 
   const updatedInquiry = await inquiryRepository.updateInquiry(body);
-  const { status, reply, ...rest } = updatedInquiry;
-
-  if (reply) {
-    const { seller, ...replyRest } = reply;
-    const replyResult = {
-      ...replyRest,
-      user: seller,
-    };
-
-    return { status: status as InquiryStatus, reply: replyResult, ...rest };
-  }
-
-  return { status: status as InquiryStatus, ...rest };
+  return formatInquiryResponse(updatedInquiry) as UpdateInquiryResponseDto;
 };
 
 /**
- * deleteInquiry
- * @param params DeleteInquiryParamsDto
- * @returns DeleteInquiryResponseDto
+ * 문의 삭제
  */
 export const deleteInquiry = async (
   params: DeleteInquiryParamsDto,
 ): Promise<DeleteInquiryResponseDto> => {
-  // 문의 존재 여부 확인
   const inquiry = await inquiryRepository.fetchInquiryDetailById(
     params.inquiryId,
   );
 
-  // 권한 확인
   if (inquiry.userId !== params.userId) {
     throw new HttpError('본인의 문의만 삭제할 수 있습니다.', 403);
   }
 
   const deletedInquiry = await inquiryRepository.deleteInquiry(params);
-
-  const { status, reply, ...rest } = deletedInquiry;
-
-  if (reply) {
-    const { seller, ...replyRest } = reply;
-    const replyResult = {
-      ...replyRest,
-      user: seller,
-    };
-
-    return { status: status as InquiryStatus, reply: replyResult, ...rest };
-  }
-
-  return { status: status as InquiryStatus, ...rest };
+  return formatInquiryResponse(deletedInquiry) as DeleteInquiryResponseDto;
 };
 
 /**
- * createInquiryReply
- * @param body CreateInquiryReplyParamsDto
- * @returns CreateInquiryReplyResponseDto
+ * 문의 답변 생성 (알림 연동 포함)
  */
 export const createInquiryReply = async (
   body: CreateInquiryReplyParamsDto,
 ): Promise<CreateInquiryReplyResponseDto> => {
-  // 문의 존재 여부 확인
   const inquiry = await inquiryRepository.fetchInquiryDetailById(
     body.inquiryId,
   );
 
-  // 권한 확인: 해당 상품의 판매자인지 확인
   if (inquiry.product.store.sellerId !== body.userId) {
     throw new HttpError('해당 문의에 대한 답변 권한이 없습니다.', 403);
   }
 
-  // 이미 답변이 있는지 확인
   if (inquiry.reply) {
     throw new HttpError('이미 답변이 완료된 문의입니다.', 409);
   }
 
-  // 문의 답변 생성
   const createdInquiryReply = await inquiryRepository.createInquiryReply(body);
-  const { sellerId, ...restCreatedInquiry } = createdInquiryReply;
 
-  const result: CreateInquiryReplyResponseDto = {
-    ...restCreatedInquiry,
-    userId: sellerId,
+  // 보강: 구매자에게 알림 발송
+  notificationService
+    .createInquiryReplyNotification(
+      inquiry.userId,
+      (inquiry.product as any).name || '문의 상품',
+    )
+    .catch(err => console.error('Notification Error:', err));
+
+  return {
+    ...createdInquiryReply,
+    userId: createdInquiryReply.sellerId,
   };
-
-  return result;
 };
 
 /**
- * updateInquiryReply
- * @param params UpdateInquiryReplyParamsDto
- * @returns UpdateInquiryReplyResponseDto
+ * 문의 답변 수정
  */
 export const updateInquiryReply = async (
   params: UpdateInquiryReplyParamsDto,
 ): Promise<UpdateInquiryReplyResponseDto> => {
-  // 답변 존재 여부 확인
   const reply = await inquiryRepository.fetchInquiryReplyById(params.replyId);
 
-  // 권한 확인: 본인의 답변인지 확인
   if (reply.sellerId !== params.userId) {
     throw new HttpError('본인의 답변만 수정할 수 있습니다.', 403);
   }
@@ -228,49 +178,31 @@ export const updateInquiryReply = async (
   const updatedInquiryReply =
     await inquiryRepository.updateInquiryReply(params);
 
-  const { sellerId, ...rest } = updatedInquiryReply;
-
-  const result: UpdateInquiryReplyResponseDto = {
-    ...rest,
-    userId: sellerId,
+  return {
+    ...updatedInquiryReply,
+    userId: updatedInquiryReply.sellerId,
   };
-
-  return result;
 };
 
-/************************************************************/
-
+/**
+ * 상품별 문의 목록 조회
+ */
 export const getInquiriesForProduct = async (
   params: FetchInquiriesForProductParamsDto,
 ): Promise<InquiryListForProductResponseDto> => {
-  // const { page, pageSize, productId, sort, status } = params;
-
-  // 문의 목록 받아오기
   const inquiryItems = await inquiryRepository.fetchInquiriesForProduct(params);
-  const newInquiryItems = inquiryItems.map(item => {
-    const { reply, status, ...restItem } = item;
-
-    if (!reply) {
-      return { ...restItem, status: status as InquiryStatus, reply: null };
-    }
-
-    const { seller, sellerId, ...restReply } = reply;
-    return {
-      ...restItem,
-      status: status as InquiryStatus,
-      reply: { ...restReply, userId: sellerId, user: seller },
-    };
-  });
-
   const totalCount =
     await inquiryRepository.countTotalInquiriesForProduct(params);
 
   return {
-    list: newInquiryItems,
+    list: inquiryItems.map(item => formatInquiryResponse(item)),
     totalCount,
   };
 };
 
+/**
+ * 상품 문의 등록
+ */
 export const createInquiryForProduct = async (
   params: CreateInquiryForProductParamsDto,
 ): Promise<CreateInquiryForProductResponseDto> => {
@@ -281,8 +213,7 @@ export const createInquiryForProduct = async (
     throw new HttpError('문의 생성에 실패했습니다.', 500);
   }
 
-  return {
-    ...createdInquiry,
-    status: createdInquiry.status as InquiryStatus,
-  };
+  return formatInquiryResponse(
+    createdInquiry,
+  ) as CreateInquiryForProductResponseDto;
 };
