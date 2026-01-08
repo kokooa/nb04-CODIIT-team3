@@ -8,7 +8,7 @@ dashboardRouter.get(
   '/',
   authMiddleware,
   requireSeller,
-  dashboardController.getAggregatedData
+  dashboardController.getAggregatedData,
 );
 
-export { dashboardRouter };
+export default dashboardRouter;
