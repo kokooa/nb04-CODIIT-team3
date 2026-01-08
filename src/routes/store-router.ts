@@ -13,7 +13,7 @@ const storeController = new StoreController();
 try {
   fs.readdirSync('uploads');
 } catch (error) {
-  console.log('uploads 폴더가 없어 자동으로 생성합니다.');
+  // console.log('uploads 폴더가 없어 자동으로 생성합니다.');
   fs.mkdirSync('uploads');
 }
 
@@ -60,6 +60,13 @@ router.get(
   authMiddleware,
   requireSeller,
   storeController.getMyStore,
+);
+
+router.get(
+  '/detail/my/product',
+  authMiddleware,
+  requireSeller,
+  storeController.getMyStoreWithProducts,
 );
 
 // 3. 사용자의 관심 스토어 목록 조회 - 정적 경로 먼저

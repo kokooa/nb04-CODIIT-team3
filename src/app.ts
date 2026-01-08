@@ -11,13 +11,8 @@ import storeRouter from './routes/store-router.js';
 import { errorHandler } from './common/error-handler.js';
 import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
-import { authMiddleware } from './common/middlewares.js';
-
-// 임시 라우터용 (Product review)
-// --------------------------
-import * as reviewController from './controllers/review-controller.js';
 import productRouter from './routes/product-router.js';
-// --------------------------
+import productReviewRouter from './routes/product-review-router.js';
 
 const app = express();
 
@@ -52,19 +47,7 @@ app.use('/api/cart', cartRouter);
 app.use('/api/purchase', purchaseRouter);
 app.use('/stores', storeRouter);
 app.use('/products', productRouter);
-
-// 임시 라우터 (Product 라우터 구현 후 삭제 예정)
-// -------------------------------------
-// 상품 리뷰 목록 조회 (페이지네이션 포함/상품ID)
-app.get('/product/:productId/reviews', reviewController.getReviews);
-
-// 상품 리뷰 작성 (상품ID)
-app.post(
-  '/product/:productId/reviews',
-  authMiddleware,
-  reviewController.createReview,
-);
-// -------------------------------------
+app.use('/product', productReviewRouter);
 
 // 에러 핸들러
 app.use(errorHandler);

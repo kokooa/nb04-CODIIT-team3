@@ -224,4 +224,34 @@ export class StoreController {
       next(error);
     }
   }
+
+  /**
+   * 판매자의 스토어와 해당 스토어의 상품들을 조회합니다. (판매자 본인만 가능)
+   * GET /api/stores/detail/my/product
+   */
+  async getMyStoreWithProducts(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const userId = req.user!.id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const storeWithProducts = await storeService.getMyStoreWithProducts(
+        userId,
+        page,
+        limit,
+      );
+
+      if (!storeWithProducts) {
+        return res.status(404).json({ message: '등록된 스토어가 없습니다.' });
+      }
+
+      res.status(200).json(storeWithProducts);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
