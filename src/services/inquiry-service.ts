@@ -13,6 +13,10 @@ import type {
   CreateInquiryReplyResponseDto,
   UpdateInquiryReplyParamsDto,
   UpdateInquiryReplyResponseDto,
+  FetchInquiriesForProductParamsDto,
+  InquiryListForProductResponseDto,
+  CreateInquiryForProductParamsDto,
+  CreateInquiryForProductResponseDto,
 } from '../dtos/inquiry.dto.js';
 import * as inquiryRepository from '../repositories/inquiry-repository.js';
 
@@ -63,8 +67,21 @@ export const getInquiryDetail = async (
     inquiryDetail.isSecret &&
     inquiryDetail.userId !== userId &&
     inquiryDetail.product.store.sellerId !== userId
-  )
+  ) {
+    /* console.log(
+      '비밀글 접근 차단\nisSecret:',
+      inquiryDetail.isSecret,
+      '\nuserId:',
+      inquiryDetail.userId,
+      ':',
+      userId,
+      '\nsellerId:',
+      inquiryDetail.product.store.sellerId,
+      ':',
+      userId,
+    ); */
     throw new HttpError('비밀글입니다.', 403);
+  }
 
   const { reply, user, status, product, ...rest } = inquiryDetail;
 
@@ -219,4 +236,53 @@ export const updateInquiryReply = async (
   };
 
   return result;
+};
+
+/************************************************************/
+
+export const getInquiriesForProduct = async (
+  params: FetchInquiriesForProductParamsDto,
+): Promise<InquiryListForProductResponseDto> => {
+  // const { page, pageSize, productId, sort, status } = params;
+
+  // 문의 목록 받아오기
+  const inquiryItems = await inquiryRepository.fetchInquiriesForProduct(params);
+  const newInquiryItems = inquiryItems.map(item => {
+    const { reply, status, ...restItem } = item;
+
+    if (!reply) {
+      return { ...restItem, status: status as InquiryStatus, reply: null };
+    }
+
+    const { seller, sellerId, ...restReply } = reply;
+    return {
+      ...restItem,
+      status: status as InquiryStatus,
+      reply: { ...restReply, userId: sellerId, user: seller },
+    };
+  });
+
+  const totalCount =
+    await inquiryRepository.countTotalInquiriesForProduct(params);
+
+  return {
+    list: newInquiryItems,
+    totalCount,
+  };
+};
+
+export const createInquiryForProduct = async (
+  params: CreateInquiryForProductParamsDto,
+): Promise<CreateInquiryForProductResponseDto> => {
+  const createdInquiry =
+    await inquiryRepository.createInquiryForProduct(params);
+
+  if (!createdInquiry) {
+    throw new HttpError('문의 생성에 실패했습니다.', 500);
+  }
+
+  return {
+    ...createdInquiry,
+    status: createdInquiry.status as InquiryStatus,
+  };
 };

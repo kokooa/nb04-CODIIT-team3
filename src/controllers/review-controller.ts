@@ -103,7 +103,7 @@ export const deleteReview = async (
   }
 
   // User 정보 받아오기 및 유효성 검증
-  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  const userId = req.user?.id;
   if (!userId) {
     return next(new HttpError('인증이 필요합니다.', 401));
   }
@@ -151,16 +151,16 @@ export const getReviews = async (
   }
 
   // User 정보 받아오기 및 유효성 검증
-  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  /* const userId = req.user?.id;
   if (!userId) {
     return next(new HttpError('인증이 필요합니다.', 401));
-  }
+  } */
 
   const params: GetReviewsParamsDto = {
     productId,
     limit: limitNumber,
     page: pageNumber,
-    userId,
+    // userId,
   };
 
   try {
@@ -195,7 +195,7 @@ export const createReview = async (
   } = req.body;
 
   // User 정보 받아오기 및 유효성 검증
-  const userId = 'abcd1234abcd1234abcd1234'; // TODO: 인증 미들웨어 구현 후 수정 필요
+  const userId = req.user?.id;
   if (!userId) {
     return next(new HttpError('인증이 필요합니다.', 401));
   }

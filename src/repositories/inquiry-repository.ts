@@ -9,6 +9,8 @@ import type {
   DeleteInquiryParamsDto,
   CreateInquiryReplyParamsDto,
   UpdateInquiryReplyParamsDto,
+  FetchInquiriesForProductParamsDto,
+  CreateInquiryForProductParamsDto,
 } from '../dtos/inquiry.dto.js';
 
 /**
@@ -353,4 +355,114 @@ export const fetchInquiryReplyById = async (replyId: string) => {
   }
 
   return reply;
+};
+
+/************************************************************/
+
+export const fetchInquiriesForProduct = async (
+  params: FetchInquiriesForProductParamsDto,
+) => {
+  const { page, pageSize, productId, sort, status } = params;
+
+  const whereClause: Prisma.InquiryWhereInput = {
+    productId,
+  };
+
+  if (status) {
+    whereClause.status = status;
+  }
+
+  const inquiryItems = await prisma.inquiry.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      title: true,
+      content: true,
+      status: true,
+      isSecret: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      reply: {
+        select: {
+          id: true,
+          inquiryId: true,
+          sellerId: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          seller: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy:
+      sort === 'oldest'
+        ? { createdAt: 'asc' }
+        : sort === 'recent'
+          ? { createdAt: 'desc' }
+          : { createdAt: 'desc' },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+
+  return inquiryItems;
+};
+
+export const countTotalInquiriesForProduct = async (
+  params: FetchInquiriesForProductParamsDto,
+) => {
+  const { productId, status } = params;
+
+  const whereClause: Prisma.InquiryWhereInput = {
+    productId,
+  };
+
+  if (status) {
+    whereClause.status = status;
+  }
+
+  const count = await prisma.inquiry.count({
+    where: whereClause,
+  });
+
+  return count;
+};
+
+export const createInquiryForProduct = async (
+  params: CreateInquiryForProductParamsDto,
+) => {
+  const { productId, userId, title, content, isSecret } = params;
+
+  const createdInquiry = await prisma.inquiry.create({
+    data: {
+      productId,
+      userId,
+      title,
+      content,
+      isSecret,
+    },
+    select: {
+      id: true,
+      userId: true,
+      productId: true,
+      title: true,
+      content: true,
+      status: true,
+      isSecret: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return createdInquiry;
 };

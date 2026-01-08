@@ -75,7 +75,7 @@ interface InquiryReplyDto {
 }
 
 export interface FetchInquiryDetailParamsDto {
-  userId: string;
+  userId: string | undefined;
   inquiryId: string;
 }
 
@@ -157,3 +157,65 @@ export interface UpdateInquiryReplyResponseDto {
 }
 
 /* ------------------------------------------------------- */
+
+export interface InquiryListForProductResponseDto {
+  list: InquiryItemForProductDto[];
+  totalCount: number;
+}
+
+interface InquiryItemForProductDto {
+  id: string;
+  userId: string;
+  productId: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  isSecret: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    name: string;
+  };
+  reply?: {
+    id: string;
+    inquiryId: string;
+    userId: string;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+      name: string;
+    };
+  } | null;
+}
+
+// getInquiriesForProduct 함수의 매개변수 DTO
+export interface FetchInquiriesForProductParamsDto {
+  productId: string;
+  page: number;
+  pageSize: number;
+  sort: string;
+  status?: InquiryStatus;
+  // userId: string;
+  // userRole: 'BUYER' | 'SELLER';
+}
+
+export interface CreateInquiryForProductParamsDto {
+  productId: string;
+  userId: string;
+  title: string;
+  content: string;
+  isSecret: boolean;
+}
+
+export interface CreateInquiryForProductResponseDto {
+  id: string;
+  userId: string;
+  productId: string;
+  title: string;
+  content: string;
+  status: InquiryStatus;
+  isSecret: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -35,18 +35,17 @@ export function authMiddleware(
 
     // 토큰 검증 ( 비밀키는 .env에 저장)
     const decoded = jwt.verify(token, jwtSecret) as unknown as JwtPayload & {
-      userId: string;
+      id: string;
       email: string;
       type: UserRole;
     };
 
     // 토큰 안에 있는 유저 정보
     req.user = {
-      id: decoded.userId,
+      id: decoded.id,
       email: decoded.email,
       type: decoded.type,
     };
-
     next();
   } catch (err: unknown) {
     console.error('JWT 검증 실패:', err instanceof Error ? err.message : err);
@@ -83,13 +82,13 @@ export async function refreshMiddleware(
     }
 
     const decoded = jwt.verify(refreshToken, jwtRefreshSecret) as JwtPayload & {
-      userId: string;
+      id: string;
       email: string;
       type: UserRole;
     };
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: decoded.id },
     });
 
     if (!user) {
@@ -99,7 +98,7 @@ export async function refreshMiddleware(
       return;
     }
 
-    if (!user.refreshToken && user.refreshToken !== refreshToken) {
+    if (!user.refreshToken || user.refreshToken !== refreshToken) {
       res.status(401).json({
         message: '유효하지 않은 Refresh Token입니다.',
       });
@@ -107,7 +106,7 @@ export async function refreshMiddleware(
     }
 
     req.user = {
-      id: user.id,
+      id: (decoded as any).id || (decoded as any).userId,
       email: user.email,
       type: user.type,
     };

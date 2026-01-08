@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const NotificationService = {
+<<<<<<< HEAD
   // 품절 알림 생성 (판매자용 & 장바구니 담은 유저용)
   async createSoldOutNotification(tx: any, productId: string, size: string) {
     const product = await tx.product.findUnique({
@@ -43,6 +44,25 @@ export const NotificationService = {
         type: 'INQUIRY_REPLY',
         message: `내 문의에 대한 답변이 등록되었습니다: ${productName}`,
       },
+=======
+  // 알림 생성 로직 (트랜잭션 내부에서 실행 가능하도록 tx 인자 수용)
+  async createNotification(
+    userId: string,
+    type: string,
+    message: string,
+    tx?: any,
+  ) {
+    const db = tx || prisma;
+    return await db.notification.create({
+      data: { userId, type, message },
+    });
+  },
+
+  async getMyNotifications(userId: string) {
+    return await prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+>>>>>>> 3d34b2d6e45a49db0c568ac72b7d1cd65a5e49c3
     });
   },
 };
