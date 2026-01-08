@@ -4,6 +4,7 @@ import type {
   UpdateProductDto,
   ProductQueryDto,
 } from '../dtos/product-dto.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 export class ProductService {
   private productRepository = new ProductRepository();
@@ -48,7 +49,7 @@ export class ProductService {
     return {
       id: product.id,
       name: product.name,
-      image: product.image,
+      image: buildFileUrl(product.image),
       content: product.detailInfo, // detailInfo -> content
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
@@ -141,7 +142,7 @@ export class ProductService {
         storeId: product.storeId,
         storeName: product.store?.name || '알 수 없음',
         name: product.name,
-        image: product.image,
+        image: buildFileUrl(product.image),
         price: product.price,
         discountPrice: product.discountPrice || product.price, // 할인가 없으면 정가
         discountRate: discountRate,
@@ -252,7 +253,7 @@ export class ProductService {
     return {
       id: product.id,
       name: product.name,
-      image: product.image,
+      image: buildFileUrl(product.image),
       content: product.detailInfo, // DB: detailInfo -> Res: content
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
