@@ -6,6 +6,7 @@ import { toUserResponseDto } from '../utils/user-mapper.js';
 import type { UserResponseDto } from '../types/index.js';
 import { GRADE_POLICIES } from '../types/index.js';
 import type { GradePolicy, UserPointResponse } from '../types/index.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 // 회원가입
 export async function signupService(
@@ -116,6 +117,9 @@ export async function updateUserService(
       email: true,
     },
   });
+
+  if (update) update.image = image ? buildFileUrl(image) : null;
+
   return update;
 }
 

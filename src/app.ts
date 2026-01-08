@@ -13,6 +13,7 @@ import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
 import productRouter from './routes/product-router.js';
 import productReviewRouter from './routes/product-review-router.js';
+import dashboardRouter from './routes/dashboard-router.js';
 
 const app = express();
 
@@ -48,6 +49,8 @@ app.use('/api/purchase', purchaseRouter);
 app.use('/stores', storeRouter);
 app.use('/products', productRouter);
 app.use('/product', productReviewRouter);
+app.use('/dashboard', dashboardRouter);
+app.use('/uploads', express.static('uploads'));
 
 // 에러 핸들러
 app.use(errorHandler);

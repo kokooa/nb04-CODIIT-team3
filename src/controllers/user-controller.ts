@@ -7,6 +7,7 @@ import {
 import type { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../utils/error-handler.js';
 import { getUserPointService } from '../services/user-service.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 // 회원가입
 export async function signup(req: Request, res: Response, next: NextFunction) {
@@ -38,15 +39,17 @@ export async function updateUser(
     }
     const userId = req.user.id;
 
-    const { currentPassword, name, image, password } = req.body;
+    const { currentPassword, name, password } = req.body;
 
-    if (!name && !image && !password) {
+    if (!name && !password) {
       throw new HttpError('수정할 정보를 입력해주세요', 400);
     }
 
     if (!currentPassword) {
       throw new HttpError('정보를 수정하려면 현재 비밀번호가 필요합니다.', 400);
     }
+
+    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     const profile = await updateUserService(
       userId,

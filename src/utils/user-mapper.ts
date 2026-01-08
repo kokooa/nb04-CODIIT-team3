@@ -1,5 +1,6 @@
 import type { User, UserPoint } from '@prisma/client';
 import type { UserResponseDto } from '../types/index.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 const GRADE_INFO = {
   Green: { rate: 1, minAmount: 0 },
@@ -33,7 +34,7 @@ export const mapUserToClientResponse = (dbUser: any) => {
     email: dbUser.email,
     name: dbUser.name,
     type: dbUser.type,
-    image: dbUser.image,
+    image: buildFileUrl(dbUser.image),
     createdAt: dbUser.createdAt.toISOString(),
     updatedAt: dbUser.updatedAt.toISOString(),
     points: String(userPointData.points || 0),
@@ -64,6 +65,6 @@ export const toUserResponseDto = (
       rate: gradeData.rate,
       minAmount: gradeData.minAmount,
     },
-    image: user.image || '',
+    image: buildFileUrl(user.image) || '',
   };
 };
