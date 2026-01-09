@@ -19,11 +19,13 @@ services:
     image: ghcr.io/kokooa/nb04-codiit-team3:dev
     container_name: nb04-backend
     restart: always
-    command: ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+    command: ['sh', '-c', 'npx prisma migrate deploy && npm run start']
     env_file:
       - ./.env.prod
     ports:
       - '4000:4000'
+    volumes:
+      - ./uploads:/usr/src/app/uploads
     # depends_on:
     # db:
     # condition: service_healthy
@@ -50,5 +52,6 @@ services:
       - backend
       - frontend
 
-# volumes:
-# db-data:
+volumes:
+  # uploads:
+  # db-data:
