@@ -174,6 +174,8 @@ export class StoreService {
 
     if (!store) return null;
 
+    store.image = store.image ? buildFileUrl(store.image) : null;
+
     const favoriteCount = store.favorites.length;
 
     const { favorites, sellerId, ...rest } = store;
