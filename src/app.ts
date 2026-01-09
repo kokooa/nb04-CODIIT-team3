@@ -14,7 +14,7 @@ import cartRouter from './routes/cart-router.js';
 import purchaseRouter from './routes/purchase-router.js';
 import productRouter from './routes/product-router.js';
 import productReviewRouter from './routes/product-review-router.js';
-import { dashboardRouter } from './routes/dashboard-router.js';
+import dashboardRouter from './routes/dashboard-router.js';
 import { errorHandler } from './common/error-handler.js';
 
 
