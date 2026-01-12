@@ -16,6 +16,9 @@ import type {
 import { InquiryStatus } from '../dtos/inquiry.dto.js';
 import { HttpError } from '../common/http-error.js';
 import * as inquiryService from '../services/inquiry-service.js';
+import { NotificationService } from '../services/notification-service.js';
+
+const notificationService = new NotificationService();
 
 /**
  * 내 문의 조회 (판매자, 구매자 공용)
@@ -339,6 +342,11 @@ export const createInquiryForProduct = async (
     // InquiryListResponseDto 받아오기
     const result: CreateInquiryForProductResponseDto =
       await inquiryService.createInquiryForProduct(params);
+
+    // 문의 생성 후 알림 생성
+    notificationService
+      .createInquiryReplyNotification(result.userId, result.title)
+      .catch(err => console.error('Notification Error:', err));
 
     // 응답 반환
     res.status(201).json(result);
