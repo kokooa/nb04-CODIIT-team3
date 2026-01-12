@@ -1,19 +1,13 @@
 import { Router } from 'express';
-import { PurchaseService } from '../services/purchase-service.js';
+// [수정] Service 대신 Controller를 import 합니다.
+import { PurchaseController } from '../controllers/purchase-controller.js';
 import { authMiddleware } from '../common/middlewares.js';
 
 const router = Router();
 
-router.post('/', authMiddleware, async (req, res) => {
-  try {
-    const userId = (req as any).user.id;
-    const order = await PurchaseService.createOrder(userId, req.body);
-    res.status(201).json(order);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: '주문 실패', error: (error as Error).message });
-  }
-});
-
+router.post('/', authMiddleware, PurchaseController.createOrder);
+router.get('/', authMiddleware, PurchaseController.getPurchases);
+router.get('/:id', authMiddleware, PurchaseController.getPurchaseById);
+router.patch('/:id', authMiddleware, PurchaseController.updatePurchase);
+router.delete('/:id', authMiddleware, PurchaseController.cancelPurchase);
 export default router;

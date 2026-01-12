@@ -31,17 +31,19 @@ export const CartController = {
   async getMyCart(req: Request, res: Response) {
     try {
       const userId = (req as any).user?.id;
-      const items = await CartService.getCart(userId);
-      items.map(item => ({
-        ...item,
-        product: { ...item.product, image: buildFileUrl(item.product.image) },
-      }));
 
-      res.status(200).json({ items: items });
+      // 서비스에서 이미 { id, items: [...] } 형태로 가공해서 줍니다.
+      const result = await CartService.getCart(userId);
+
+      // ❌ 예전 코드: items.map을 또 하거나, { items: result }로 감싸면 안 됩니다!
+      // ✅ 수정 코드: 결과 그대로 반환
+      res.status(200).json(result);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: '조회 실패', error: (error as Error).message });
+      console.error(error);
+      res.status(500).json({
+        message: '조회 실패',
+        error: (error as Error).message,
+      });
     }
   },
 

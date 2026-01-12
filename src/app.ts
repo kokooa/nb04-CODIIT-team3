@@ -47,7 +47,7 @@ app.use('/notifications', notificationRouter);
 app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
 app.use('/cart', cartRouter); // 장바구니 API
-app.use('/purchase', purchaseRouter);
+app.use('/orders', purchaseRouter);
 app.use('/stores', storeRouter);
 app.use('/products', productRouter);
 app.use('/product', productReviewRouter);

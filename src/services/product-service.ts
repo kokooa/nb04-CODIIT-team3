@@ -341,16 +341,22 @@ export class ProductService {
 
       categoryId: 'CUID',
       category: {
-        name: product.category.toLowerCase(), // "BOTTOM" -> "bottom"
+        name:
+          typeof product.category === 'string'
+            ? product.category.toLowerCase()
+            : 'etc',
         id: 'CUID',
       },
 
-      stocks: product.stocks.map(stock => ({
+      stocks: product.stocks.map((stock, index) => ({
         id: stock.id,
         productId: stock.productId,
         quantity: stock.quantity,
         size: {
-          id: 1, // DB에 Size ID가 없다면 임의값 혹은 인덱스
+          // 🚨 중요: id를 1로 고정하면 프론트에서 옵션 선택이 꼬입니다.
+          // index + 1을 사용하거나 stock.id를 활용하세요.
+          id: index + 1,
+          // 🚨 중요: 여기서 객체 구조 { name: "L" }을 만들어줘야 프론트엔드가 인식합니다!
           name: stock.size || 'Free',
         },
       })),
