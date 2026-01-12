@@ -6,6 +6,16 @@ import type {
 } from '../dtos/product-dto.js';
 import { buildFileUrl } from '../common/uploads.js';
 
+const SIZE_STRING_TO_ID: { [key: string]: number } = {
+  Free: 1,
+  XS: 2,
+  S: 3,
+  M: 4,
+  L: 5,
+  XL: 6,
+  '2XL': 7,
+};
+
 export class ProductService {
   private productRepository = new ProductRepository();
 
@@ -348,18 +358,22 @@ export class ProductService {
         id: 'CUID',
       },
 
-      stocks: product.stocks.map((stock, index) => ({
-        id: stock.id,
-        productId: stock.productId,
-        quantity: stock.quantity,
-        size: {
-          // 🚨 중요: id를 1로 고정하면 프론트에서 옵션 선택이 꼬입니다.
-          // index + 1을 사용하거나 stock.id를 활용하세요.
-          id: index + 1,
-          // 🚨 중요: 여기서 객체 구조 { name: "L" }을 만들어줘야 프론트엔드가 인식합니다!
-          name: stock.size || 'Free',
-        },
-      })),
+      stocks: product.stocks.map(stock => {
+        // null 안전 처리
+        const sizeStr = stock.size || 'Free';
+        // 'S'는 무조건 3, 'L'은 무조건 5로 변환 (맵에 없으면 99)
+        const fixedId = SIZE_STRING_TO_ID[sizeStr] || 99;
+
+        return {
+          id: stock.id,
+          productId: stock.productId,
+          quantity: stock.quantity,
+          size: {
+            id: fixedId, // 👈 고정된 ID 부여 (선택 로직 꼬임 방지)
+            name: sizeStr, // 👈 프론트엔드가 찾는 name 속성 제공 (Free 표시 방지)
+          },
+        };
+      }),
       isSoldOut: isSoldOut,
     };
   }
