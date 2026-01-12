@@ -9,7 +9,7 @@ import { useToaster } from "@/proviers/toaster/toaster.hook";
 import { useUserStore } from "@/stores/userStore";
 import { ProductInfoData } from "@/types/Product";
 import { CartEditSize } from "@/types/cart";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,6 @@ const ProductInfo = ({ productId, data }: ProductInfoProps) => {
   const [image, setImage] = useState<string>(data.image);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const queryClient = useQueryClient();
   const router = useRouter();
   const toaster = useToaster();
 
@@ -60,15 +59,14 @@ const ProductInfo = ({ productId, data }: ProductInfoProps) => {
     }
     // 2. sizeId(value)에 해당하는 실제 사이즈 이름(예: "L") 찾기
     const selectedStock = data.stocks[value];
-    const sizeName = selectedStock ? selectedStock.size : "Free";
-
+    const sizeName = selectedStock ? selectedStock.size.name : "Free";
     // 3. state에 저장할 때 size 속성도 같이 포함 (타입 에러 해결!)
     setOptions((prev) => [
       ...prev,
       {
         sizeId: value,
         quantity: 1,
-        size: sizeName, // 👈 이게 빠져서 에러가 났던 것입니다.
+        size: sizeName,
       },
     ]);
   };
@@ -111,6 +109,7 @@ const ProductInfo = ({ productId, data }: ProductInfoProps) => {
       await refetchCartData(); // 장바구니 데이터 갱신
       setOptions([]); // 선택된 옵션 초기화
       setModalOpen(); // 성공 모달 띄우기
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       const msg = error?.response?.data?.message || "장바구니 담기에 실패했습니다.";
@@ -136,7 +135,7 @@ const ProductInfo = ({ productId, data }: ProductInfoProps) => {
     try {
       // 구매하기도 마찬가지로 장바구니에 먼저 담아야 주문이 가능할 것 같으므로 같은 로직 사용
       for (const option of options) {
-        const sizeValue = data.stocks.find((s) => s.size === option.size)?.size || "Free";
+        const sizeValue = data.stocks.find((s) => s.size.name === option.size)?.size || "Free";
 
         await postCart({
           productId: productId,
@@ -147,6 +146,7 @@ const ProductInfo = ({ productId, data }: ProductInfoProps) => {
 
       // 장바구니에 다 담았으면 주문 페이지로 이동
       router.push("/buyer/order");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       const msg = error?.response?.data?.message || "구매하기 이동 실패";

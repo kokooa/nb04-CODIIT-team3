@@ -2,6 +2,7 @@ import { Cart, CartEdit, CartItem } from "@/types/cart";
 import { getAxiosInstance } from "./axiosInstance";
 
 // 장바구니 생성
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const postCart = async (body: any) => {
   const axiosInstance = getAxiosInstance();
 

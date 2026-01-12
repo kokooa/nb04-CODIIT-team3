@@ -47,6 +47,7 @@ export interface CartProduct {
 }
 
 export interface CartItem {
+  size: string;
   id: string;
   cartId: string;
   productId: string;
@@ -67,6 +68,7 @@ export interface Cart {
 }
 
 export interface CartEditSize {
+  size: string;
   sizeId: number;
   quantity: number;
 }
