@@ -5,7 +5,8 @@ export const CartController = {
   async addToCart(req: Request, res: Response) {
     try {
       const userId = (req as any).user?.id;
-      const { productId, size, quantity } = req.body;
+      const body = req.body || {};
+      const { productId, size, quantity } = body;
 
       if (!productId || !size || !quantity) {
         return res.status(400).json({ message: '상품 정보가 부족합니다.' });
@@ -19,12 +20,10 @@ export const CartController = {
       );
       res.status(201).json(result);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: '장바구니 담기 실패',
-          error: (error as Error).message,
-        });
+      res.status(500).json({
+        message: '장바구니 담기 실패',
+        error: (error as Error).message,
+      });
     }
   },
 
@@ -32,7 +31,7 @@ export const CartController = {
     try {
       const userId = (req as any).user?.id;
       const items = await CartService.getCart(userId);
-      res.status(200).json(items);
+      res.status(200).json({ items: items });
     } catch (error) {
       res
         .status(500)

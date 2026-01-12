@@ -107,23 +107,32 @@ export class ProductRepository {
     });
   }
 
+  // prisma.schema에서 Cascade를 적용안해서 위험 부담이 있는걸 transaction으로 보완했습니다.
   async deleteProduct(productId: string) {
-    return prisma.$transaction([
-      prisma.productStock.deleteMany({
+    return await this.prisma.$transaction(async tx => {
+      await tx.cartItem.deleteMany({
         where: { productId: productId },
-      }),
+      });
 
-      prisma.review.deleteMany({
+      await tx.productStock.deleteMany({
         where: { productId: productId },
-      }),
+      });
 
-      prisma.inquiry.deleteMany({
+      await tx.review.deleteMany({
         where: { productId: productId },
-      }),
+      });
 
-      prisma.product.delete({
+      await tx.inquiry.deleteMany({
+        where: { productId: productId },
+      });
+
+      await tx.orderItem.deleteMany({
+        where: { productId: productId },
+      });
+
+      return await tx.product.delete({
         where: { id: productId },
-      }),
-    ]);
+      });
+    });
   }
 }

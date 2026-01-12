@@ -17,7 +17,6 @@ import productReviewRouter from './routes/product-review-router.js';
 import dashboardRouter from './routes/dashboard-router.js';
 import { errorHandler } from './common/error-handler.js';
 
-
 const app = express();
 
 app.use(
@@ -47,8 +46,8 @@ app.use('/metadata', metadataRouter);
 app.use('/notifications', notificationRouter);
 app.use('/inquiries', inquiryRoutes);
 app.use('/review', reviewRoutes);
-app.use('/api/cart', cartRouter); // 장바구니 API
-app.use('/api/purchase', purchaseRouter);
+app.use('/cart', cartRouter); // 장바구니 API
+app.use('/purchase', purchaseRouter);
 app.use('/stores', storeRouter);
 app.use('/products', productRouter);
 app.use('/product', productReviewRouter);

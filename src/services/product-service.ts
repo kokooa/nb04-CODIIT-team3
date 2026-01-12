@@ -16,10 +16,43 @@ export class ProductService {
       throw new Error('필수 입력값인 category가 누락되었습니다.');
     }
 
+    const SIZE_MAPPING: { [key: number]: string } = {
+      1: 'XS',
+      2: 'S',
+      3: 'M',
+      4: 'L',
+      5: 'XL',
+      6: 'Free',
+    };
+
+    let stockList = body.stocks;
+    if (typeof stockList === 'string') {
+      try {
+        stockList = JSON.parse(stockList);
+      } catch (e) {
+        stockList = [];
+      }
+    }
+
+    const stockData = Array.isArray(stockList)
+      ? stockList.map((s: any) => {
+          let resolvedSize = SIZE_MAPPING[Number(s.sizeId)];
+
+          if (!resolvedSize) {
+            resolvedSize = s.size || s.sized || s.name || s.sizeId || 'Free';
+          }
+
+          return {
+            size: String(resolvedSize),
+            quantity: Number(s.quantity),
+          };
+        })
+      : [];
+
     const createData = {
       name: body.name,
       price: Number(body.price),
-      detailInfo: body.content || body.detailInfo, // DB 필드명에 맞춤
+      detailInfo: body.content || body.detailInfo,
       image: body.image,
       category: categoryInput.toUpperCase(),
       storeId: body.storeId,
@@ -28,16 +61,12 @@ export class ProductService {
         ? new Date(body.discountStartTime)
         : null,
       discountEnd: body.discountEndTime ? new Date(body.discountEndTime) : null,
-      // 중요: 여기서 size가 정확히 매핑되는지 확인
-      stocks: body.stocks.map((s: any) => ({
-        size: String(s.size),
-        quantity: Number(s.quantity),
-      })),
+
+      stocks: stockData,
     };
 
     const product = await this.productRepository.createProduct(createData);
 
-    // 할인율 계산
     const calculatedRate =
       product.price > 0 && product.discountPrice
         ? Math.round(
@@ -45,12 +74,16 @@ export class ProductService {
           )
         : 0;
 
-    // 2. 요청하신 Response 양식으로 변환
+    const totalStock = product.stocks.reduce(
+      (acc: number, cur: any) => acc + cur.quantity,
+      0,
+    );
+
     return {
       id: product.id,
       name: product.name,
       image: buildFileUrl(product.image),
-      content: product.detailInfo, // detailInfo -> content
+      content: product.detailInfo,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
       reviewsRating: 0.0,
@@ -71,8 +104,9 @@ export class ProductService {
         sumScore: 0,
       },
       inquiries: [],
+      categoryId: 'CUID',
       category: {
-        name: product.category.toLowerCase(), // "BOTTOM" -> "bottom"
+        name: product.category.toLowerCase(),
         id: 'CUID',
       },
       stocks: product.stocks.map((s: any) => ({
@@ -80,10 +114,11 @@ export class ProductService {
         productId: s.productId,
         quantity: s.quantity,
         size: {
-          id: 0, // 스키마에 Size 테이블이 없으므로 임의값
+          id: 0,
           name: s.size,
         },
       })),
+      isSoldOut: totalStock === 0,
     };
   }
 
@@ -249,6 +284,13 @@ export class ProductService {
         ? Number((reviewStats.sumScore / reviewsCount).toFixed(1))
         : 0;
 
+    // 3. 품절 여부 계산 (stocks 합계)
+    const totalStockQuantity = product.stocks.reduce(
+      (sum: number, stock: any) => sum + stock.quantity,
+      0,
+    );
+    const isSoldOut = totalStockQuantity === 0;
+
     // 4. 최종 Response Mapping
     return {
       id: product.id,
@@ -297,9 +339,10 @@ export class ProductService {
           : null,
       })),
 
+      categoryId: 'CUID',
       category: {
-        name: product.category.toLowerCase(), // Enum: BOTTOM -> bottom
-        id: 'CUID', // Enum이라 ID가 없지만 형식 맞춤
+        name: product.category.toLowerCase(), // "BOTTOM" -> "bottom"
+        id: 'CUID',
       },
 
       stocks: product.stocks.map(stock => ({
@@ -308,9 +351,10 @@ export class ProductService {
         quantity: stock.quantity,
         size: {
           id: 1, // DB에 Size ID가 없다면 임의값 혹은 인덱스
-          name: stock.size,
+          name: stock.size || 'Free',
         },
       })),
+      isSoldOut: isSoldOut,
     };
   }
 
