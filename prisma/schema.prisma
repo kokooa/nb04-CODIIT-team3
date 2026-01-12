@@ -276,7 +276,7 @@ model Notification {
   userId    String // 알림을 받을 대상 유저 ID
   type      String // 알림 종류 (예: SOLD_OUT, NEW_INQUIRY, INQUIRY_REPLY 등)
   message   String // 알림 내용
-  isRead    Boolean  @default(false) // 읽음 여부
+  isRead    Boolean  @default(false) // all, unChecked, checked
   createdAt DateTime @default(now())
 
   // 관계 설정

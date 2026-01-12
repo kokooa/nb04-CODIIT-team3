@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Prisma } from '@prisma/client';
+import { sseManager } from '../common/sse-manager.js';
+import prisma from '../common/prisma.js';
 
 export interface GetNotificationsDto {
   userId: string;
@@ -17,7 +17,7 @@ export class NotificationService {
     message: string,
     type: string,
   ) {
-    return await prisma.notification.create({
+    const newNotification = await prisma.notification.create({
       data: {
         userId,
         message,
@@ -25,6 +25,20 @@ export class NotificationService {
         isRead: false,
       },
     });
+
+    const newNoti = {
+      id: newNotification.id,
+      userId: newNotification.userId,
+      content: newNotification.message,
+      isChecked: newNotification.isRead,
+      createdAt: newNotification.createdAt,
+      updatedAt: newNotification.createdAt,
+    };
+
+    // SSE로 실시간 알림 전송
+    sseManager.sendNotification(userId, newNoti);
+
+    return newNotification;
   }
 
   // 주문 완료 알림

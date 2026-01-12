@@ -8,7 +8,7 @@ const router = Router();
 const notificationService = new NotificationService();
 
 // 실시간 알림 연결
-router.get('/sse', streamNotifications);
+router.get('/sse', authMiddleware, streamNotifications);
 
 // 내 알림 목록 조회
 router.get('/', authMiddleware, async (req, res, next) => {
