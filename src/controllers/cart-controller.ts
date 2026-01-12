@@ -31,7 +31,8 @@ export const CartController = {
   async getMyCart(req: Request, res: Response) {
     try {
       const userId = (req as any).user?.id;
-      const items = (await CartService.getCart(userId)).map(item => ({
+      const items = await CartService.getCart(userId);
+      items.map(item => ({
         ...item,
         product: { ...item.product, image: buildFileUrl(item.product.image) },
       }));
