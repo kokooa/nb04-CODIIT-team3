@@ -6,6 +6,7 @@ import { toUserResponseDto } from '../utils/user-mapper.js';
 import type { UserResponseDto } from '../types/index.js';
 import { GRADE_POLICIES } from '../types/index.js';
 import type { GradePolicy, UserPointResponse } from '../types/index.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 // 회원가입
 export async function signupService(
@@ -116,6 +117,9 @@ export async function updateUserService(
       email: true,
     },
   });
+
+  if (update) update.image = image ? buildFileUrl(image) : null;
+
   return update;
 }
 
@@ -226,3 +230,30 @@ export const getUserPointService = async (
     },
   };
 };
+
+// 내 관심 스토어 조회 서비스
+export async function getMyFavoriteStoresService(userId: string) {
+  // 1. 유저 ID 확인 (컨트롤러에서 넘어오지만 안전장치)
+  if (!userId) {
+    throw new HttpError('유저 정보를 찾을 수 없습니다.', 401);
+  }
+
+  // 2. FavoriteStore 테이블 조회
+  // User 스키마의 favoriteStores 관계를 역으로 이용합니다.
+  const favoriteStores = await prisma.favoriteStore.findMany({
+    where: {
+      userId: userId,
+    },
+    // 요청하신 응답 양식: [{ storeId, userId, store: {...} }]
+    select: {
+      storeId: true,
+      userId: true,
+      store: true, // store 테이블의 모든 정보를 중첩해서 가져옴
+    },
+    orderBy: {
+      createdAt: 'desc', // (선택) 최신 찜한 순서 정렬
+    },
+  });
+
+  return favoriteStores;
+}

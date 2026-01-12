@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import { StoreRepository } from '../repositories/store-repository.js';
 import { ProductRepository } from '../repositories/product-repository.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 const prisma = new PrismaClient();
 const storeRepository = new StoreRepository();
@@ -35,7 +36,7 @@ export class StoreService {
    */
   async createStore(userId: string, data: StoreCreationData) {
     // checkExistingStore 미들웨어에서 이미 판매자당 1개의 스토어만 허용하도록 검증됨
-    return prisma.store.create({
+    const store = await prisma.store.create({
       data: {
         seller: { connect: { id: userId } },
         name: data.name,
@@ -46,6 +47,10 @@ export class StoreService {
         content: data.content === undefined ? null : data.content,
       },
     });
+
+    store.image = store.image ? buildFileUrl(store.image) : null;
+
+    return store;
   }
 
   /**
@@ -74,6 +79,10 @@ export class StoreService {
       },
     });
 
+    if (store) {
+      store.image = store.image ? buildFileUrl(store.image) : null;
+    }
+
     if (!store) {
       return null;
     }
@@ -92,7 +101,7 @@ export class StoreService {
     const startOfMonth = dayjs().startOf('month').toDate();
     const endOfMonth = dayjs().endOf('month').toDate();
     const monthFavoriteCount = store.favorites.filter(
-      (fav) => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth,
+      fav => fav.createdAt >= startOfMonth && fav.createdAt < endOfMonth,
     ).length;
 
     // 백엔드 필드를 프론트엔드에서 예상하는 필드로 매핑
@@ -108,11 +117,7 @@ export class StoreService {
     };
   }
 
-  async getMyStoreWithProducts(
-    userId: string,
-    page: number,
-    limit: number,
-  ) {
+  async getMyStoreWithProducts(userId: string, page: number, limit: number) {
     const store = await storeRepository.findStoreByUserId(userId);
 
     if (!store) {
@@ -126,11 +131,8 @@ export class StoreService {
       { createdAt: 'desc' },
     );
 
-    const formattedProducts = products.map((product) => {
-      const stock = product.stocks.reduce(
-        (acc, cur) => acc + cur.quantity,
-        0,
-      );
+    const formattedProducts = products.map(product => {
+      const stock = product.stocks.reduce((acc, cur) => acc + cur.quantity, 0);
       const isSoldOut = stock === 0;
       const isDiscount =
         product.discountPrice !== null &&
@@ -142,7 +144,7 @@ export class StoreService {
 
       return {
         id: product.id,
-        image: product.image,
+        image: buildFileUrl(product.image),
         name: product.name,
         price: product.price,
         createdAt: product.createdAt,
@@ -171,6 +173,8 @@ export class StoreService {
     });
 
     if (!store) return null;
+
+    store.image = store.image ? buildFileUrl(store.image) : null;
 
     const favoriteCount = store.favorites.length;
 
@@ -292,4 +296,3 @@ export class StoreService {
     });
   }
 }
-

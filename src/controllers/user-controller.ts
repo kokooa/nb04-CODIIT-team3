@@ -3,10 +3,12 @@ import {
   signupService,
   unregisterService,
   updateUserService,
+  getMyFavoriteStoresService,
 } from '../services/user-service.js';
 import type { Request, Response, NextFunction } from 'express';
 import { HttpError } from '../utils/error-handler.js';
 import { getUserPointService } from '../services/user-service.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 // 회원가입
 export async function signup(req: Request, res: Response, next: NextFunction) {
@@ -38,15 +40,17 @@ export async function updateUser(
     }
     const userId = req.user.id;
 
-    const { currentPassword, name, image, password } = req.body;
+    const { currentPassword, name, password } = req.body;
 
-    if (!name && !image && !password) {
+    if (!name && !password) {
       throw new HttpError('수정할 정보를 입력해주세요', 400);
     }
 
     if (!currentPassword) {
       throw new HttpError('정보를 수정하려면 현재 비밀번호가 필요합니다.', 400);
     }
+
+    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     const profile = await updateUserService(
       userId,
@@ -121,3 +125,27 @@ export const getMyPointInfo = async (req: Request, res: Response) => {
     return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
   }
 };
+
+// 내 관심 스토어 조회
+export async function getMyFavoriteStores(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    // 1. 로그인된 유저 ID 가져오기 (authMiddleware 통과 후)
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      throw new HttpError('인증이 필요합니다.', 401);
+    }
+
+    // 2. 서비스 호출
+    const myFavoriteStores = await getMyFavoriteStoresService(userId);
+
+    // 3. 응답 반환
+    res.status(200).json(myFavoriteStores);
+  } catch (error) {
+    next(error);
+  }
+}

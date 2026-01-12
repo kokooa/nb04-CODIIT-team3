@@ -101,15 +101,29 @@ export class ProductRepository {
     });
   }
 
-  async deleteProduct(productId: string) {
-    return prisma.product.delete({
-      where: { id: productId },
+  async deleteStocksByProduct(productId: string) {
+    return this.prisma.productStock.deleteMany({
+      where: { productId: productId },
     });
   }
 
-  async deleteStocksByProduct(productId: string) {
-    return prisma.productStock.deleteMany({
-      where: { productId },
-    });
+  async deleteProduct(productId: string) {
+    return prisma.$transaction([
+      prisma.productStock.deleteMany({
+        where: { productId: productId },
+      }),
+
+      prisma.review.deleteMany({
+        where: { productId: productId },
+      }),
+
+      prisma.inquiry.deleteMany({
+        where: { productId: productId },
+      }),
+
+      prisma.product.delete({
+        where: { id: productId },
+      }),
+    ]);
   }
 }

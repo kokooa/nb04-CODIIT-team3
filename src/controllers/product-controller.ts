@@ -106,13 +106,30 @@ export class ProductController {
   deleteProduct = async (req: Request, res: Response) => {
     try {
       const productId = req.params.productId;
+
       if (!productId) {
         return res.status(400).json({ message: '상품 ID가 필요합니다.' });
       }
+
       await this.productService.deleteProduct(productId);
 
       return res.json({ message: '삭제 완료' });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'NOT_FOUND') {
+        return res.status(404).json({
+          statusCode: 404,
+          message: '상품을 찾을 수 없습니다.',
+          error: 'Not Found',
+        });
+      }
+
+      if (error.code === 'P2003') {
+        return res.status(409).json({
+          message: '관련된 데이터(재고/리뷰 등)가 있어 삭제할 수 없습니다.',
+        });
+      }
+
+      console.error(error);
       return res.status(500).json({ error: '상품 삭제 실패' });
     }
   };

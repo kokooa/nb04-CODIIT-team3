@@ -1,49 +1,11 @@
 // src/routes/store-router.ts
-import { Router, type Request } from 'express';
+import { Router } from 'express';
 import { StoreController } from '../controllers/store-controller.js';
 import { authMiddleware, requireSeller } from '../common/middlewares.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { upload } from '../common/uploads.js';
 
 const router = Router(); // 변수명을 storeRouter -> router로 통일
 const storeController = new StoreController();
-
-// --- Multer 설정 (이미지 업로드용) ---
-try {
-  fs.readdirSync('uploads');
-} catch (error) {
-  // console.log('uploads 폴더가 없어 자동으로 생성합니다.');
-  fs.mkdirSync('uploads');
-}
-
-const storage = multer.diskStorage({
-  destination: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, destination: string) => void,
-  ) => {
-    cb(null, 'uploads/');
-  },
-  filename: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, filename: string) => void,
-  ) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname +
-        '-' +
-        uniqueSuffix +
-        uniqueSuffix +
-        path.extname(file.originalname),
-    );
-  },
-});
-
-const upload = multer({ storage: storage });
-// ------------------------------------
 
 // 1. 스토어 등록 (판매자만 가능, 판매자당 1개)
 router.post(

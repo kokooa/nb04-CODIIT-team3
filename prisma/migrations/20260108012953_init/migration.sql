@@ -8,16 +8,17 @@ CREATE TYPE "ProductCategory" AS ENUM ('TOP', 'BOTTOM', 'OUTER', 'DRESS', 'SKIRT
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELED');
 
 -- CreateEnum
-CREATE TYPE "UserGrade" AS ENUM ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM');
+CREATE TYPE "UserGrade" AS ENUM ('Green', 'Orange', 'Red', 'Black', 'VIP');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "nickname" TEXT NOT NULL,
-    "role" "UserRole" NOT NULL DEFAULT 'BUYER',
-    "profileImageUrl" TEXT,
+    "type" "UserRole" NOT NULL DEFAULT 'BUYER',
+    "image" TEXT,
+    "refreshToken" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -26,13 +27,14 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Store" (
-    "id" SERIAL NOT NULL,
-    "sellerId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "sellerId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "address" TEXT NOT NULL,
+    "detailAddress" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
-    "storeImageUrl" TEXT,
-    "description" TEXT,
+    "image" TEXT,
+    "content" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -41,10 +43,10 @@ CREATE TABLE "Store" (
 
 -- CreateTable
 CREATE TABLE "Product" (
-    "id" SERIAL NOT NULL,
-    "storeId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "storeId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "mainImageUrl" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
     "category" "ProductCategory" NOT NULL,
     "detailInfo" TEXT NOT NULL,
@@ -60,8 +62,8 @@ CREATE TABLE "Product" (
 
 -- CreateTable
 CREATE TABLE "ProductStock" (
-    "id" SERIAL NOT NULL,
-    "productId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
     "size" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL DEFAULT 0,
 
@@ -70,9 +72,9 @@ CREATE TABLE "ProductStock" (
 
 -- CreateTable
 CREATE TABLE "CartItem" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "productId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "size" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -82,8 +84,8 @@ CREATE TABLE "CartItem" (
 
 -- CreateTable
 CREATE TABLE "Order" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "orderNumber" TEXT NOT NULL,
     "totalAmount" INTEGER NOT NULL,
     "usedPoints" INTEGER NOT NULL DEFAULT 0,
@@ -99,9 +101,9 @@ CREATE TABLE "Order" (
 
 -- CreateTable
 CREATE TABLE "OrderItem" (
-    "id" SERIAL NOT NULL,
-    "orderId" INTEGER NOT NULL,
-    "productId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "price" INTEGER NOT NULL,
     "size" TEXT NOT NULL,
@@ -111,13 +113,13 @@ CREATE TABLE "OrderItem" (
 
 -- CreateTable
 CREATE TABLE "Inquiry" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "productId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
     "isSecret" BOOLEAN NOT NULL DEFAULT false,
-    "hasAnswer" BOOLEAN NOT NULL DEFAULT false,
+    "status" TEXT NOT NULL DEFAULT 'WaitingAnswer',
+    "productId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -125,23 +127,23 @@ CREATE TABLE "Inquiry" (
 );
 
 -- CreateTable
-CREATE TABLE "InquiryAnswer" (
-    "id" SERIAL NOT NULL,
-    "inquiryId" INTEGER NOT NULL,
-    "sellerId" INTEGER NOT NULL,
+CREATE TABLE "InquiryReply" (
+    "id" TEXT NOT NULL,
+    "inquiryId" TEXT NOT NULL,
+    "sellerId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "InquiryAnswer_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "InquiryReply_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Review" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "productId" INTEGER NOT NULL,
-    "orderItemId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "orderItemId" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -152,11 +154,11 @@ CREATE TABLE "Review" (
 
 -- CreateTable
 CREATE TABLE "UserPoint" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "currentPoints" INTEGER NOT NULL DEFAULT 0,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "points" INTEGER NOT NULL DEFAULT 0,
     "accumulatedAmount" INTEGER NOT NULL DEFAULT 0,
-    "grade" "UserGrade" NOT NULL DEFAULT 'BRONZE',
+    "grade" "UserGrade" NOT NULL DEFAULT 'Green',
     "pointRate" DOUBLE PRECISION NOT NULL DEFAULT 0.01,
 
     CONSTRAINT "UserPoint_pkey" PRIMARY KEY ("id")
@@ -164,19 +166,31 @@ CREATE TABLE "UserPoint" (
 
 -- CreateTable
 CREATE TABLE "FavoriteStore" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "storeId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "storeId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "FavoriteStore_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
+CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Store_sellerId_key" ON "Store"("sellerId");
@@ -191,7 +205,7 @@ CREATE UNIQUE INDEX "CartItem_userId_productId_size_key" ON "CartItem"("userId",
 CREATE UNIQUE INDEX "Order_orderNumber_key" ON "Order"("orderNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "InquiryAnswer_inquiryId_key" ON "InquiryAnswer"("inquiryId");
+CREATE UNIQUE INDEX "InquiryReply_inquiryId_key" ON "InquiryReply"("inquiryId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Review_orderItemId_key" ON "Review"("orderItemId");
@@ -233,7 +247,10 @@ ALTER TABLE "Inquiry" ADD CONSTRAINT "Inquiry_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Inquiry" ADD CONSTRAINT "Inquiry_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "InquiryAnswer" ADD CONSTRAINT "InquiryAnswer_inquiryId_fkey" FOREIGN KEY ("inquiryId") REFERENCES "Inquiry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "InquiryReply" ADD CONSTRAINT "InquiryReply_inquiryId_fkey" FOREIGN KEY ("inquiryId") REFERENCES "Inquiry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InquiryReply" ADD CONSTRAINT "InquiryReply_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -252,3 +269,6 @@ ALTER TABLE "FavoriteStore" ADD CONSTRAINT "FavoriteStore_userId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "FavoriteStore" ADD CONSTRAINT "FavoriteStore_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "Store"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

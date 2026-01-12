@@ -4,6 +4,7 @@ import type {
   UpdateProductDto,
   ProductQueryDto,
 } from '../dtos/product-dto.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 export class ProductService {
   private productRepository = new ProductRepository();
@@ -48,7 +49,7 @@ export class ProductService {
     return {
       id: product.id,
       name: product.name,
-      image: product.image,
+      image: buildFileUrl(product.image),
       content: product.detailInfo, // detailInfo -> content
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
@@ -141,7 +142,7 @@ export class ProductService {
         storeId: product.storeId,
         storeName: product.store?.name || '알 수 없음',
         name: product.name,
-        image: product.image,
+        image: buildFileUrl(product.image),
         price: product.price,
         discountPrice: product.discountPrice || product.price, // 할인가 없으면 정가
         discountRate: discountRate,
@@ -252,7 +253,7 @@ export class ProductService {
     return {
       id: product.id,
       name: product.name,
-      image: product.image,
+      image: buildFileUrl(product.image),
       content: product.detailInfo, // DB: detailInfo -> Res: content
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
@@ -314,6 +315,17 @@ export class ProductService {
   }
 
   async deleteProduct(productId: string) {
+    // 1. (권장) 삭제 전에 상품이 존재하는지 먼저 확인
+    // Repository에 findById 같은 조회 메서드가 있다고 가정합니다.
+    const existingProduct =
+      await this.productRepository.findProductById(productId);
+
+    if (!existingProduct) {
+      // 상품이 없으면 에러를 던짐 (메시지는 컨트롤러에서 구분하기 위함)
+      throw new Error('NOT_FOUND');
+    }
+
+    // 2. 존재하면 삭제 진행
     return this.productRepository.deleteProduct(productId);
   }
 }
