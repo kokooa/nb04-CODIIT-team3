@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { CartService } from '../services/cart-service.js';
+import { buildFileUrl } from '../common/uploads.js';
 
 export const CartController = {
   async addToCart(req: Request, res: Response) {
@@ -31,6 +32,11 @@ export const CartController = {
     try {
       const userId = (req as any).user?.id;
       const items = await CartService.getCart(userId);
+      items.map(item => ({
+        ...item,
+        product: { ...item.product, image: buildFileUrl(item.product.image) },
+      }));
+
       res.status(200).json({ items: items });
     } catch (error) {
       res
