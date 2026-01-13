@@ -1,6 +1,7 @@
 import { PrismaClient, OrderStatus, Prisma } from '@prisma/client';
 import { NotificationService } from './notification-service.js'; // 경로 확인 필요
 import { buildFileUrl } from '../common/uploads.js'; // 경로 확인 필요
+import { PointService } from './point-service.js';
 
 // ✅ [Helper] 사이즈 변환 함수 (공통 사용을 위해 클래스 밖이나 static으로 뺌)
 const mapSizeToResponse = (sizeStr: string) => {
@@ -60,6 +61,20 @@ class PurchaseServiceClass {
     } = orderData;
 
     return await this.prisma.$transaction(async tx => {
+      if (usePoint > 0) {
+        const userPoint = await tx.userPoint.findUnique({ where: { userId } });
+
+        if (!userPoint || userPoint.points < usePoint) {
+          throw new Error('보유 포인트가 부족합니다.');
+        }
+
+        // 포인트 차감
+        await tx.userPoint.update({
+          where: { userId },
+          data: { points: { decrement: usePoint } },
+        });
+      }
+
       let subtotal = 0;
       let totalQuantity = 0;
 
@@ -68,8 +83,6 @@ class PurchaseServiceClass {
 
       for (const item of inputItems) {
         const sizeStr = mapIdToSize(item.sizeId);
-
-        console.log(`🛒 주문 처리 중: ID(${item.sizeId}) -> Size(${sizeStr})`);
 
         const productStock = await tx.productStock.findUnique({
           where: {
@@ -117,6 +130,10 @@ class PurchaseServiceClass {
       }
 
       const finalPrice = subtotal - usePoint;
+      if (finalPrice < 0)
+        throw new Error(
+          '결제 금액 오류: 포인트 사용액이 상품 금액보다 큽니다.',
+        );
 
       // 주문 생성
       const order = await tx.order.create({
@@ -149,6 +166,26 @@ class PurchaseServiceClass {
 
       // 장바구니 비우기
       await tx.cartItem.deleteMany({ where: { userId } });
+
+      // (1) 현재 유저 정보(적립률) 조회
+      const currentUserPoint = await tx.userPoint.findUnique({
+        where: { userId },
+      });
+      const earnRate = currentUserPoint?.pointRate || 0.01; // 기본 1%
+
+      // (2) 적립 포인트 계산 (실 결제 금액 기준)
+      const earnedPoints = Math.floor(finalPrice * earnRate);
+
+      // (3) 포인트 적립 실행
+      if (earnedPoints > 0) {
+        await tx.userPoint.update({
+          where: { userId },
+          data: { points: { increment: earnedPoints } },
+        });
+      }
+
+      // (4) 등급 재산정 서비스 호출 (누적 금액 업데이트 포함)
+      await PointService.updateGrade(tx, userId, finalPrice);
 
       // 응답 데이터 생성
       const paymentResponse = {
