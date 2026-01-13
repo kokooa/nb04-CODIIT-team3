@@ -8,6 +8,14 @@ import { GRADE_POLICIES } from '../types/index.js';
 import type { GradePolicy, UserPointResponse } from '../types/index.js';
 import { buildFileUrl } from '../common/uploads.js';
 
+const GRADE_RATES: { [key: string]: number } = {
+  Green: 0.01,
+  Orange: 0.02,
+  Red: 0.03,
+  Black: 0.05,
+  VIP: 0.07,
+};
+
 // 회원가입
 export async function signupService(
   type: UserRole,
@@ -85,7 +93,6 @@ export async function updateUserService(
     throw new HttpError('현재 비밀번호가 일치 하지 않습니다.', 401);
   }
 
-  // 1. 업데이트할 데이터 객체 준비
   const updateData: Partial<User> = {};
 
   if (name) {
@@ -123,19 +130,35 @@ export async function updateUserService(
   return update;
 }
 
-// 내 정보 조회
 export async function getUserService(userId: string): Promise<UserResponseDto> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { userPoints: true },
+    include: { userPoints: true }, // DB에서 포인트 정보 가져오기
   });
 
   if (!user) {
     throw new HttpError('유저를 찾을 수 없습니다.', 404);
   }
-  const responseDto = toUserResponseDto(user);
 
-  return responseDto;
+  // 기존 DTO 매퍼 사용
+  const basicDto = toUserResponseDto(user);
+
+  // DB에 있는 최신 포인트/등급 정보 추출
+  const currentGrade = user.userPoints?.grade || 'Green';
+  const currentPoints = user.userPoints?.points || 0;
+  const currentRate = GRADE_RATES[currentGrade] || 0.01;
+
+  return {
+    ...basicDto,
+    points: currentPoints,
+    grade: {
+      id: currentGrade,
+      name: currentGrade,
+      rate: currentRate,
+      minAmount: 0,
+      text: `${(currentRate * 100).toFixed(0)}% 적립`,
+    },
+  } as unknown as UserResponseDto;
 }
 
 // 회원 탈퇴
@@ -157,22 +180,20 @@ export async function unregisterService(userId: string) {
   });
 }
 
-// 내 포인트 조회
-
 export const getUserPointService = async (
   userId: string,
 ): Promise<UserPointResponse> => {
   const userPointData = await prisma.userPoint.findUnique({
-    where: { id: userId },
+    where: { userId: userId },
   });
 
-  // 데이터가 없으면 신규 유저 취급 (기본값 설정)
+  // 데이터가 없으면 신규 유저 취급
   const currentPoint = userPointData?.points ?? 0;
   const currentAmount = userPointData?.accumulatedAmount ?? 0;
   const dbGrade = userPointData?.grade ?? 'Green';
 
   // -----------------------------------------------------------
-  // [변경 2] 등급 계산 로직 (기준: 누적 구매 금액 accumulatedAmount)
+  // 등급 계산 로직 (기준: 누적 구매 금액 accumulatedAmount)
   // -----------------------------------------------------------
   let currentPolicyIndex = 0;
 
@@ -186,7 +207,6 @@ export const getUserPointService = async (
 
   const currentPolicy = GRADE_POLICIES[currentPolicyIndex];
 
-  // 안전장치
   if (!currentPolicy) {
     throw new HttpError('매칭되는 등급 정책이 없습니다.', 404);
   }
@@ -223,7 +243,7 @@ export const getUserPointService = async (
   return {
     userSummary: {
       currentPoint: currentPoint,
-      currentGrade: currentPolicy.grade,
+      currentGrade: dbGrade,
       nextGrade: nextGradeName,
       remainingPoint: remainingAmount,
       progressPercent: progressPercent,
@@ -233,25 +253,21 @@ export const getUserPointService = async (
 
 // 내 관심 스토어 조회 서비스
 export async function getMyFavoriteStoresService(userId: string) {
-  // 1. 유저 ID 확인 (컨트롤러에서 넘어오지만 안전장치)
   if (!userId) {
     throw new HttpError('유저 정보를 찾을 수 없습니다.', 401);
   }
 
-  // 2. FavoriteStore 테이블 조회
-  // User 스키마의 favoriteStores 관계를 역으로 이용합니다.
   const favoriteStores = await prisma.favoriteStore.findMany({
     where: {
       userId: userId,
     },
-    // 요청하신 응답 양식: [{ storeId, userId, store: {...} }]
     select: {
       storeId: true,
       userId: true,
-      store: true, // store 테이블의 모든 정보를 중첩해서 가져옴
+      store: true,
     },
     orderBy: {
-      createdAt: 'desc', // (선택) 최신 찜한 순서 정렬
+      createdAt: 'desc',
     },
   });
 
