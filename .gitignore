@@ -1,0 +1,13 @@
+node_modules
+# Keep environment variables out of version control
+.env
+.env.prod
+.secrets
+todo
+
+/generated/prisma
+/dist
+/uploads
+
+/plans
+/front
